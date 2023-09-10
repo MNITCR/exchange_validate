@@ -1,69 +1,81 @@
 <?php
-    include "links/link.php";
     include "conn.php";
-
+    session_start();
     // Check if the form is submitted
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST["submit"])){
         // Get user input
-        $phoneNumber = $_POST["phoneNumber"];
-        $password = $_POST["password"];
+        $phoneNumber = $_POST["phonenumber"];
+        $password = trim($_POST["password"]);
 
-        // Prepare and execute a SQL query to fetch user data
-        $sql = "SELECT * FROM login_table WHERE phone_number = ?";
+        // Query the database for the user
+        $query = "SELECT * FROM register_table WHERE phone_number = '$phoneNumber'";
+        $result = mysqli_query($conn, $query);
 
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("s", $phoneNumber);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
+        if ($result) {
+            // Check if a matching user is found
+            if (mysqli_num_rows($result) == 1) {
+                $row = mysqli_fetch_assoc($result);
+                $hashedPassword = $row["password"];
 
-            if ($row) {
-                // Verify the password
-                if (password_verify($password, $row["password"])) {
-                    // Password is correct, perform login actions
-                    echo "Login successful!";
+                // Check if "Remember Me" is selected
+                $rememberMe = isset($_POST["remember"]) ? true : false;
+
+                if ($rememberMe) {
+                    setcookie("remember_phone_number", $phoneNumber, time() + (7 * 24 * 3600), "/");
+                    setcookie("remember_password", $password, time() + (7 * 24 * 3600), "/");
                 } else {
-                    // Password is incorrect
-                    echo "Incorrect password!";
+                    setcookie("remember_phone_number", "", time() - 3600, "/");
+                    setcookie("remember_password", "", time() - 3600, "/");
+                }
+
+
+                if ($password === $hashedPassword) {
+                    $_SESSION["user_phone_number"] = $phoneNumber;
+                    echo "<script>
+                    alert('Login successful. Welcome!');
+                    window.location.href=('dashboards/dashboard.php');
+                    </script>";
+                } else {
+                    echo "<script>
+                    alert('Incorrect password. Please try again.');
+                    window.location.href=('index.php');
+                    </script>";
                 }
             } else {
-                // User not found
-                echo "User not found!";
+                echo "<script>
+                alert('User not found. Please register.');
+                window.location.href=('index.php');
+                </script>";
             }
-
-            $stmt->close();
+        } else {
+            // Query execution error
+            echo "Error: " . mysqli_error($conn);
         }
-
-        $conn->close();
     }
 
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <style>
-        .text-register {
-            display: none;
-            transition: display 1s ease-in;
-            transition-delay: 0.5s;
-        }
-        .main-register:hover .text-register {
-            transition-delay: 0s;
-            display: inline;
-        }
-        .main-register:hover {
-            cursor: pointer;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body class="bg-dark">
+?>
+
+
+<?php include "links/link.php";?>
+<title>Login</title>
+
+<style>
+    .text-register {
+        display: none;
+        transition: display 1s ease-in;
+        transition-delay: 0.5s;
+    }
+    .main-register:hover .text-register {
+        transition-delay: 0s;
+        display: inline;
+    }
+    .main-register:hover {
+        cursor: pointer;
+    }
+</style>
+
+<div class="bg-dark">
     <div class="container text-white">
         <div class="d-flex justify-content-center align-items-center flex-row position-relative" style="height: 100vh;">
             <form method="POST" action="" class="col-lg-5">
@@ -72,17 +84,20 @@
                 </div>
                 <div class="mb-3">
                     <label for="phonenumber" class="form-label">Phone number</label>
-                    <input type="text" name="phoneNumber" class="form-control" id="phonenumber" required autofocus>
+                    <input type="text" name="phonenumber" class="form-control" id="phonenumber" required autofocus
+                    value="<?php echo isset($_COOKIE['remember_phone_number']) ? $_COOKIE['remember_phone_number'] : ''; ?>">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" id="password" required autofocus>
+                    <input type="password" name="password" class="form-control" id="password" required autofocus
+                    value="<?php echo isset($_COOKIE['remember_password']) ? $_COOKIE['remember_password'] : ''; ?>">
                 </div>
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                    <input type="checkbox" name="remember" class="form-check-input" id="remember"
+                    <?php echo isset($_COOKIE['remember_phone_number']) ? 'checked' : ''; ?>>
+                    <label class="form-check-label" for="remember">Remember me</label>
                 </div>
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" name="submit" class="btn btn-primary">Login</button>
             </form>
             <div class="position-absolute d-flex justify-content-end" style="right: 0rem;bottom: 2rem">
                 <div class="main-register" title="register">
@@ -91,5 +106,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
