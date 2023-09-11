@@ -13,6 +13,42 @@
     }
 
 
+    // // top_up
+    // if(isset($_POST['top_up'])){
+    //     $numQr = $_POST['numQr'];
+    //     $simNumber = $_COOKIE['simNumber'];
+    //     $id_number = $_POST['id_number'];
+    //     $id = $_POST['rg_id'];
+    //     if($simNumber == $numQr){
+    //         // Check if the phone number already exists in the database
+    //         $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
+    //         $checkResult = mysqli_query($conn, $checkQuery);
+
+    //         // print($checkQuery);
+    //         if (mysqli_num_rows($checkResult) > 0) {
+    //             // Phone number already exists, show an error message or handle it as needed
+    //             echo "<script>alert('Phone number already exists. Please choose a different one.');</script>";
+    //         } else {
+    //             // Insert new user data into the database
+    //             $insertQuery = "INSERT INTO main_bland_table (id_number,register_id) VALUES ('$id_number','$id')";
+
+    //             if (mysqli_query($conn, $insertQuery)) {
+    //                 // Registration successful, you can redirect or display a success message
+    //                 echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+    //             } else {
+    //                 // Handle the case where the insert query fails
+    //                 echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+    //             }
+    //         }
+    //         // echo($simNumber);
+    //     }
+    //     else{
+    //         echo "<script>alert('This card number is expired')</script>";
+    //     }
+    // }
+
+
+
     // top_up
     if(isset($_POST['top_up'])){
         $numQr = $_POST['numQr'];
@@ -20,68 +56,47 @@
         $id_number = $_POST['id_number'];
         $id = $_POST['rg_id'];
         if($simNumber == $numQr){
-            // Check if the phone number already exists in the database
+            // Check if the num_bland value already exists in the database
             $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
             $checkResult = mysqli_query($conn, $checkQuery);
 
-            // print($checkQuery);
             if (mysqli_num_rows($checkResult) > 0) {
-                // Phone number already exists, show an error message or handle it as needed
-                echo "<script>alert('Phone number already exists. Please choose a different one.');</script>";
-            } else {
-                // Insert new user data into the database
-                $insertQuery = "INSERT INTO main_bland_table (num_bland,id_number,register_id) VALUES ('$numQr','$id_number','$id')";
+                // num_bland value already exists, show an error message
+                echo "<script>alert('This card number is already used. Please choose a different one.');</script>";
+            }
+            else{
+                // Check if the phone number already exists in the database
+                $checkQuery = "SELECT * FROM main_bland_table WHERE id_number = '$id_number' AND register_id = '$id'";
+                $checkResult = mysqli_query($conn, $checkQuery);
 
-                if (mysqli_query($conn, $insertQuery)) {
-                    // Registration successful, you can redirect or display a success message
-                    echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                if (mysqli_num_rows($checkResult) > 0) {
+                    // Phone number already exists, increment the main_bland value
+                    $updateQuery = "UPDATE main_bland_table SET main_bland = main_bland + 1 WHERE id_number = '$id_number' AND register_id = '$id'";
+
+                    if (mysqli_query($conn, $updateQuery)) {
+                        // Top-up successful, you can redirect or display a success message
+                        echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                    } else {
+                        // Handle the case where the update query fails
+                        echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+                    }
                 } else {
-                    // Handle the case where the insert query fails
-                    echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+                    // Insert new user data into the database
+                    $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, num_bland, register_id) VALUES ('$id_number', 1, '$numQr', '$id')";
+
+                    if (mysqli_query($conn, $insertQuery)) {
+                        // Registration successful, you can redirect or display a success message
+                        echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                    } else {
+                        // Handle the case where the insert query fails
+                        echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+                    }
                 }
             }
-            // echo($simNumber);
-        }
-        else{
+        } else {
             echo "<script>alert('This card number is expired')</script>";
         }
     }
-
-    // if (isset($_POST['top_up'])) {
-    //     $numQr = $_POST['numQr'];
-    //     $simNumber = $_COOKIE['simNumber'];
-    //     $id_number = $_POST['id_number'];
-    //     $rg_id = $_POST['rg_id']; // Updated variable name to $rg_id
-
-    //     if ($simNumber == $numQr) {
-    //         // Check if the phone number already exists in the database
-    //         $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = ?";
-    //         $stmt = mysqli_prepare($conn, $checkQuery);
-    //         mysqli_stmt_bind_param($stmt, "s", $numQr);
-    //         mysqli_stmt_execute($stmt);
-    //         mysqli_stmt_store_result($stmt);
-
-    //         if (mysqli_stmt_num_rows($stmt) > 0) {
-    //             echo "<script>alert('Phone number already exists. Please choose a different one.');</script>";
-    //         } else {
-    //             // Insert new user data into the database using a parameterized query
-    //             $insertQuery = "INSERT INTO main_bland_table (num_bland, id_number, register_id) VALUES (?, ?, ?)";
-    //             $stmt = mysqli_prepare($conn, $insertQuery);
-    //             mysqli_stmt_bind_param($stmt, "ssi", $numQr, $id_number, $rg_id); // Use $rg_id for register_id
-
-    //             if (mysqli_stmt_execute($stmt)) {
-    //                 echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
-    //             } else {
-    //                 // Handle the case where the insert query fails
-    //                 echo "Error Top up: " . mysqli_error($conn);
-    //             }
-    //         }
-
-    //         mysqli_stmt_close($stmt);
-    //     } else {
-    //         echo "<script>alert('This card number is expired')</script>";
-    //     }
-    // }
 
 
     // Retrieve the phone number from the session
@@ -139,26 +154,61 @@
         // Get updated user data from the form
         $updatedName = mysqli_real_escape_string($conn, $_POST["name"]);
         $updatedPhone = mysqli_real_escape_string($conn, $_POST["phone"]);
-        $updatedIdNumber = mysqli_real_escape_string($conn, $_POST["id_number"]);
-        $updatedBland = mysqli_real_escape_string($conn, $_POST["bland"]);
 
-        // Update user data in the database
-        $updateQuery = "UPDATE register SET
-                        name = '$updatedName',
-                        phone_number = '$updatedPhone',
-                        updated_at = now()
-                        WHERE phone_number = '$userPhoneNumber'";
+        // Check if any changes were made
+        $query = "SELECT * FROM register WHERE phone_number = '$user_phone'";
+        $result = mysqli_query($conn, $query);
 
-        if (mysqli_query($conn, $updateQuery)) {
-            print "<script>
-                alert('Update successfully');window.location.href=('dashboard.php');
-                </script>";
-            exit();
+        if ($result && mysqli_num_rows($result) == 1) {
+            $userData = mysqli_fetch_assoc($result);
+            $currentName = $userData["name"];
+            $currentPhone = $userData["phone_number"];
+
+            if ($updatedName === $currentName && $updatedPhone === $currentPhone) {
+                // No changes were made
+                echo "<script>alert('No changes were made. Please insert new data.');</script>";
+            } else {
+                // Check if the phone number is updated
+                $isPhoneNumberUpdated = ($updatedPhone !== $user_phone);
+
+                // Check if the new phone number already exists in the database
+                $checkDuplicateQuery = "SELECT * FROM register WHERE phone_number = '$updatedPhone'";
+                $checkDuplicateResult = mysqli_query($conn, $checkDuplicateQuery);
+
+                if (mysqli_num_rows($checkDuplicateResult) > 0 && $isPhoneNumberUpdated) {
+                    // Phone number already in use
+                    echo "<script>alert('The phone number is already in use. Please choose a different one.');</script>";
+                } else {
+                    // Update user data in the database
+                    $updateQuery = "UPDATE register SET
+                                    name = '$updatedName',
+                                    phone_number = '$updatedPhone',
+                                    updated_at = NOW()
+                                    WHERE phone_number = '$user_phone'";
+
+                    if (mysqli_query($conn, $updateQuery)) {
+                        // Data updated successfully
+                        if ($isPhoneNumberUpdated) {
+                            // Phone number is updated, redirect to index.php
+                            echo "<script>alert('Update successful. Please login again.'); window.location.href = '../index.php';</script>";
+                        } else {
+                            // Other data updated, redirect to dashboard.php
+                            echo "<script>alert('Update successful.'); window.location.href = 'dashboard.php';</script>";
+                        }
+                        mysqli_close($conn);
+                    } else {
+                        // Handle the case where the update fails
+                        echo "Error updating user data: " . mysqli_error($conn);
+                    }
+                }
+            }
         } else {
-            // Handle the case where the update fails
-            echo "Error updating user data: " . mysqli_error($conn);
+            // Handle the case where user data retrieval fails
+            echo "Error retrieving user data: " . mysqli_error($conn);
         }
     }
+
+
 ?>
 
 <!DOCTYPE html>
