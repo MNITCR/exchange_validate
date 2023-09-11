@@ -5,21 +5,105 @@
     // Start the session
     session_start();
 
-    // Check if the user is logged in (session contains phone number)
-    if (!isset($_SESSION["user_phone_number"])) {
+     // Check if the user is logged in (session contains phone number)
+    if (!isset($_SESSION["user_phonenumber"])) {
         // Redirect to the login page or handle unauthorized access
         header("Location: ./../index.php");
         exit();
     }
 
-    // Retrieve the phone number from the session
-    $userPhoneNumber = $_SESSION["user_phone_number"];
 
-    // Query the database to fetch user data from both tables based on id_number
-    $query = "SELECT r.*, t.main_bland, t.exchange_bland, t.data_use
-            FROM register_table AS r
-            LEFT JOIN top_up AS t ON r.phone_number = t.phone_number
-            WHERE r.phone_number = '$userPhoneNumber'";
+    // top_up
+    if(isset($_POST['top_up'])){
+        $numQr = $_POST['numQr'];
+        $simNumber = $_COOKIE['simNumber'];
+        $id_number = $_POST['id_number'];
+        $id = $_POST['rg_id'];
+        if($simNumber == $numQr){
+            // Check if the phone number already exists in the database
+            $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
+            $checkResult = mysqli_query($conn, $checkQuery);
+
+            // print($checkQuery);
+            if (mysqli_num_rows($checkResult) > 0) {
+                // Phone number already exists, show an error message or handle it as needed
+                echo "<script>alert('Phone number already exists. Please choose a different one.');</script>";
+            } else {
+                // Insert new user data into the database
+                $insertQuery = "INSERT INTO main_bland_table (num_bland,id_number,register_id) VALUES ('$numQr','$id_number','$id')";
+
+                if (mysqli_query($conn, $insertQuery)) {
+                    // Registration successful, you can redirect or display a success message
+                    echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                } else {
+                    // Handle the case where the insert query fails
+                    echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+                }
+            }
+            // echo($simNumber);
+        }
+        else{
+            echo "<script>alert('This card number is expired')</script>";
+        }
+    }
+
+    // if (isset($_POST['top_up'])) {
+    //     $numQr = $_POST['numQr'];
+    //     $simNumber = $_COOKIE['simNumber'];
+    //     $id_number = $_POST['id_number'];
+    //     $rg_id = $_POST['rg_id']; // Updated variable name to $rg_id
+
+    //     if ($simNumber == $numQr) {
+    //         // Check if the phone number already exists in the database
+    //         $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = ?";
+    //         $stmt = mysqli_prepare($conn, $checkQuery);
+    //         mysqli_stmt_bind_param($stmt, "s", $numQr);
+    //         mysqli_stmt_execute($stmt);
+    //         mysqli_stmt_store_result($stmt);
+
+    //         if (mysqli_stmt_num_rows($stmt) > 0) {
+    //             echo "<script>alert('Phone number already exists. Please choose a different one.');</script>";
+    //         } else {
+    //             // Insert new user data into the database using a parameterized query
+    //             $insertQuery = "INSERT INTO main_bland_table (num_bland, id_number, register_id) VALUES (?, ?, ?)";
+    //             $stmt = mysqli_prepare($conn, $insertQuery);
+    //             mysqli_stmt_bind_param($stmt, "ssi", $numQr, $id_number, $rg_id); // Use $rg_id for register_id
+
+    //             if (mysqli_stmt_execute($stmt)) {
+    //                 echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+    //             } else {
+    //                 // Handle the case where the insert query fails
+    //                 echo "Error Top up: " . mysqli_error($conn);
+    //             }
+    //         }
+
+    //         mysqli_stmt_close($stmt);
+    //     } else {
+    //         echo "<script>alert('This card number is expired')</script>";
+    //     }
+    // }
+
+
+    // Retrieve the phone number from the session
+    $user_phone = $_SESSION["user_phonenumber"];
+
+    $query = "SELECT
+        register.id AS id,
+        register.name AS name,
+        register.phone_number AS phone_number,
+        register.id_number AS id_number,
+        main_bland_table.main_bland AS main_bland,
+        topup.exchange_bland AS exchange_bland,
+        topup.data_use AS data_use
+    FROM
+        register
+    LEFT JOIN
+        main_bland_table ON register.id = main_bland_table.register_id
+    LEFT JOIN
+        topup ON register.id = topup.register_id
+    WHERE
+        register.phone_number = '$user_phone'
+    LIMIT 1"; // Add LIMIT 1 to retrieve only one row
 
     $result = mysqli_query($conn, $query);
 
@@ -27,6 +111,9 @@
         // Check if a matching user is found
         if (mysqli_num_rows($result) == 1) {
             $userData = mysqli_fetch_assoc($result);
+
+            print_r($userData);
+            $id = $userData["id"];
             $name = $userData["name"];
             $phone = $userData["phone_number"];
             $idNumber = $userData["id_number"];
@@ -34,6 +121,7 @@
             $ex_bland = $userData["exchange_bland"];
             $data_use = $userData["data_use"];
         } else {
+            $id = '';
             $name = '';
             $phone = '';
             $idNumber = '';
@@ -45,6 +133,7 @@
         echo "Error: " . mysqli_error($conn);
     }
 
+
     // Check if the edit form is submitted
     if (isset($_POST["edit_submit"])) {
         // Get updated user data from the form
@@ -54,7 +143,7 @@
         $updatedBland = mysqli_real_escape_string($conn, $_POST["bland"]);
 
         // Update user data in the database
-        $updateQuery = "UPDATE register_table SET
+        $updateQuery = "UPDATE register SET
                         name = '$updatedName',
                         phone_number = '$updatedPhone',
                         updated_at = now()
@@ -62,7 +151,7 @@
 
         if (mysqli_query($conn, $updateQuery)) {
             print "<script>
-                alert('Update successfully');window.location.href=('video.php');
+                alert('Update successfully');window.location.href=('dashboard.php');
                 </script>";
             exit();
         } else {
@@ -128,7 +217,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Smart</h5>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn text-white" style="background: #01a951;" data-bs-target="#exampleModalToggle" data-bs-toggle="modal" id="smart-sim">Buy now</a>
+                        <a href="#" class="btn text-white " name="smart-sim" style="background: #01a951;" data-bs-target="#exampleModalToggle" data-bs-toggle="modal" id="smart-sim">Buy now</a>
                     </div>
                 </div>
 
@@ -167,7 +256,6 @@
                     <div class="mb-3">
                         <input type="text" name="sim-smart-number" class="form-control" id="sim-smart-number" disabled>
                     </div>
-
                     <button type="button" class="btn btn-primary" id="smart-copy" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Copy">Copy code</button>
                 </div>
                 <div class="modal-footer">
@@ -285,13 +373,17 @@
                             <label for="paste-input" class="col-form-label">Number or QR :</label>
                             <div id="input-container">
                                 <input type="text" name="numQr" class="form-control" id="paste-input">
+                                <select name="rg_id" id="rg_id" class="">
+                                    <option value="<?php echo $id; ?>"><?php echo $id; ?></option>
+                                </select>
+                                <input type="hidden" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>">
                                 <div id="preview-container"></div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
-                        <button type="button" name="top_up" class="btn btn-primary">Top Up</button>
+                        <button type="submit" name="top_up" class="btn btn-primary">Top Up</button>
                     </div>
                 </form>
             </div>

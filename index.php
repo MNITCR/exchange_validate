@@ -8,7 +8,7 @@
         $password = trim($_POST["password"]);
 
         // Query the database for the user
-        $query = "SELECT * FROM register_table WHERE phone_number = '$phoneNumber'";
+        $query = "SELECT * FROM register WHERE phone_number = '$phoneNumber'";
         $result = mysqli_query($conn, $query);
 
         if ($result) {
@@ -30,7 +30,8 @@
 
 
                 if ($password === $hashedPassword) {
-                    $_SESSION["user_phone_number"] = $phoneNumber;
+                    $_SESSION["user_phonenumber"] = $phoneNumber;
+                    // $_SESSION["user_id_number"] = $idNumber;
                     echo "<script>
                     alert('Login successful. Welcome!');
                     window.location.href=('dashboards/dashboard.php');

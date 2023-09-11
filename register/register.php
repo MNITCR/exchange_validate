@@ -10,7 +10,7 @@
         $idNumber = generateUniqueId();
 
         // Check if the phone number already exists in the database
-        $checkQuery = "SELECT * FROM register_table WHERE phone_number = '$phoneNumber'";
+        $checkQuery = "SELECT * FROM register WHERE phone_number = '$phoneNumber'";
         $checkResult = mysqli_query($conn, $checkQuery);
 
         if (mysqli_num_rows($checkResult) > 0) {
@@ -18,9 +18,10 @@
             echo "<script>alert('Phone number already exists. Please choose a different one.');</script>";
         } else {
             // Insert new user data into the database
-            $insertQuery = "INSERT INTO register_table (name, phone_number, password, id_number,created_at) VALUES ('$name', '$phoneNumber', '$password','$idNumber',now())";
+            $insertQuery = "INSERT INTO register (name, phone_number, password, id_number,created_at) VALUES ('$name', '$phoneNumber', '$password','$idNumber',now())";
 
             if (mysqli_query($conn, $insertQuery)) {
+                $_SESSION["user_phonenumber"] = $phoneNumber;
                 // Registration successful, you can redirect or display a success message
                 echo "<script>alert('Registration successful.');window.location.href=('../index.php');</script>";
             } else {
