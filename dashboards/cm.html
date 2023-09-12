@@ -1,0 +1,88 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Access</title>
+</head>
+<body>
+    <h1>Camera Access</h1>
+
+    <video id="camera-feed" autoplay></video>
+    <button id="capture-button">Capture</button>
+
+    <script>
+        // Access the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                var videoElement = document.getElementById('camera-feed');
+                videoElement.srcObject = stream;
+                videoElement.play();
+            })
+            .catch(function (error) {
+                console.error('Error accessing camera:', error);
+            });
+
+        // Capture button click event
+        var captureButton = document.getElementById('capture-button');
+        captureButton.addEventListener('click', function () {
+            // Capture camera data and send it to the server (AJAX or form submission)
+            // Implement this part as needed
+        });
+    </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Scanner</title>
+    <script>
+        // Function to handle the input event on the input field
+        function handleInput(event) {
+            // Get the value entered in the input field
+            var inputValue = event.target.value;
+
+            // Update the value of the numQr input field with the scanned data
+            document.getElementById('paste-input').value = inputValue;
+        }
+
+        // Function to initialize the QR code scanner
+        function initializeScanner() {
+            // Check if the browser supports the getUserMedia API
+            if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+                // Access the camera
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(function (stream) {
+                        // Create a video element to display the camera feed
+                        var video = document.createElement('video');
+                        document.body.appendChild(video);
+
+                        // Set the video element's source to the camera stream
+                        video.srcObject = stream;
+
+                        // Play the video
+                        video.play();
+
+                        // Create an input field to capture scanned data
+                        var input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = 'paste-input';
+                        input.placeholder = 'Scanned data will appear here';
+                        document.body.appendChild(input);
+
+                        // Listen for the input event on the input field
+                        input.addEventListener('input', handleInput);
+                    })
+                    .catch(function (error) {
+                        console.error('Error accessing camera:', error);
+                    });
+            } else {
+                console.error('getUserMedia is not supported in this browser');
+            }
+        }
+    </script>
+</head>
+<body onload="initializeScanner()">
+    <h1>QR Code Scanner</h1>
+</body>
+</html>

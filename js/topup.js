@@ -1,7 +1,7 @@
 // Get references to HTML elements
-const inputContainer = document.getElementById('input-container');
 const pasteInput = document.getElementById('paste-input');
 const previewContainer = document.getElementById('preview-container');
+
 
 // Add event listeners
 pasteInput.addEventListener('paste', (e) => {

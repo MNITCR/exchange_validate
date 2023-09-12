@@ -312,7 +312,7 @@
                     <!-- <button type="button" class="btn btn-success" id="smart-copy-qr">Copy qr</button> -->
                     <button type="button" class="btn btn-info text-white" id="smart-download-qr">Download</button>
                     <button type="button" class="btn btn-success" id="smart-create-qr" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Generate">Generate</button>
-                    <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Back</button>
+                    <button class="btn btn-primary" data-bs-target="#modal_smart" data-bs-toggle="modal">Back</button>
                 </div>
             </div>
         </div>
@@ -354,7 +354,7 @@
                     <!-- <button type="button" class="btn btn-success" id="metfone-copy-qr">Copy qr</button> -->
                     <button type="button" class="btn btn-info text-white" id="metfone-download-qr">Download</button>
                     <button type="button" class="btn btn-success" id="metfone-create-qr">Generate</button>
-                    <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Back</button>
+                    <button class="btn btn-primary" data-bs-target="#modal_metfone" data-bs-toggle="modal">Back</button>
                 </div>
             </div>
         </div>
@@ -395,8 +395,8 @@
                 <div class="modal-footer">
                     <!-- <button type="button" class="btn btn-success" id="cellCard-copy-qr">Copy qr</button> -->
                     <button type="button" class="btn btn-info text-white" id="cellCard-download-qr">Download</button>
-                    <button type="button" class="btn btn-success" id="cellCard-create-qr">Generate</button>
-                    <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Back</button>
+                    <button type="button" class="btn btn-success" id="cellCard-create-qr" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="Generate">Generate</button>
+                    <button class="btn btn-primary" data-bs-target="#modal_cellCard" data-bs-toggle="modal">Back</button>
                 </div>
             </div>
         </div>
@@ -417,11 +417,12 @@
                             <label for="paste-input" class="col-form-label">Number or QR :</label>
                             <div class="input-container-smart">
                                 <input type="text" name="numQr" class="form-control" id="paste-input">
-                                <select name="rg_id" id="rg_id" class="">
+                                <select name="rg_id" id="rg_id" class="d-none">
                                     <option value="<?php echo $id; ?>"><?php echo $id; ?></option>
                                 </select>
                                 <input type="hidden" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>">
                                 <div id="preview-container" class=""></div>
+
                             </div>
                         </div>
                     </div>
@@ -510,25 +511,14 @@
 
 
 
-
-    <!-- <script src="../js/logout.js"></script> -->
+    <!-- =========================JS File============================ -->
+    <script src="../js/logout.js"></script>
     <script src="../js/topup.js"></script>
     <script src="../js/smart.js"></script>
     <script src="../js/metfone.js"></script>
     <script src="../js/cellcard.js"></script>
 
-    <script>
-        const logoutButton = document.getElementById("logoutButton");
 
-        // Add a click event listener to the button
-        logoutButton.addEventListener('click', function() {
-            const com = confirm('Are you sure you want to logout?');
-            if (com) {
-            // Redirect to the desired URL when the user confirms
-            window.location.href = '../index.php';
-            }
-        });
-
-    </script>
+    
 </body>
 </html>
