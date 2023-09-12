@@ -196,53 +196,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        .ExchangeModal{
+            padding-top: 5rem;
+        }
+    </style>
+
 </head>
 <body>
+
     <!-- =========================Navbar============================ -->
     <nav class="navbar navbar-expand-lg bg-body-tertiary" style="position: fixed;z-index: 9999;width: 100%">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Navbar</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="./dashboard.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./video.php">Video</a>
-                </li>
-                <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Account
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal" data-bs-whatever="@mdo">Profile</a></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#TopUpModal" data-bs-whatever="@mdo">Top up</a></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ExchageModal" data-bs-whatever="@mdo">Exchange</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="./dashboard.php">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./video.php">Video</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal" data-bs-whatever="@mdo">Profile</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#TopUpModal" data-bs-whatever="@mdo">Top up</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ExchangeModal" data-bs-whatever="@mdo">Exchange</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
                 </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                </li>
-            </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
             </div>
         </div>
     </nav>
 
 
     <!-- =========================Top up menu============================ -->
-    <div class="container-fluid bg-dark pt-5 pb-5 d-flex align-items-center justify-content-center" style="height: 100vh;">
+    <div class="container-fluid bg-dark d-flex align-items-center justify-content-center" id="main-all-card-topUp">
         <div class="container ">
             <h1 class="text-center text-white">Buy Card Top up</h1>
-            <div class="text-white d-flex gap-3 pt-5 justify-content-center">
+            <div class="text-white d-flex gap-3 pt-5 justify-content-center flex-wrap">
                 <!-- smart -->
                 <div class="card" style="width: 18rem;">
                     <img src="https://simcard.id/wp-content/uploads/2020/11/Smart-Sim-Card-Cambodia-1280x720.jpg" class="card-img-top" alt="..." style="height: 10.2rem;">
@@ -318,7 +319,6 @@
         </div>
     </div>
 
-
     <!-- =========================Modal metfone============================ -->
     <div class="modal fade" id="modal_metfone" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -359,7 +359,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- =========================Modal cellCard============================ -->
     <div class="modal fade" id="modal_cellCard" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
@@ -403,8 +402,86 @@
     </div>
 
 
+    <!-- =========================Profile============================ -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true" style="z-index: 999999;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="POST">
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <img src="https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=" alt="User Profile Image" class="rounded-circle" style="width: 150px; height: 150px">
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <h6 class="text-center">Detail information</h6>
+                        </div>
+                        <div class="main_detail">
+
+                            <!-- detail_left -->
+                            <div class="detail_left">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" name="name" class="form-control" id="name" value="<?php echo $name; ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone number</label>
+                                    <input type="text" name="phone" class="form-control" id="phone" value="<?php echo $phone; ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_number" class="form-label">Id number</label>
+                                    <input type="text" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>" disabled>
+                                </div>
+                            </div>
+
+                            <!-- detail_left -->
+                            <div class="detail_right">
+                                <div class="mb-3 d-flex align-items-center">
+                                    <div class="" style="width: 250%;">
+                                        <label for="bland" class="form-label">Main bland</label>
+                                        <input type="text" name="bland" class="form-control" id="bland" value="<?php echo $main_bland; ?>" disabled>
+                                    </div>
+                                    <div class="ps-2" style="padding-top: 30px;" style="width: 10%;">
+                                        <input type="text" name="bland" class="form-control" id="bland" value="$" disabled >
+                                    </div>
+                                </div>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <div class="" style="width: 250%;">
+                                        <label for="bland" class="form-label">Exchange</label>
+                                        <input type="text" name="bland" class="form-control" id="bland" value="<?php echo $ex_bland; ?>" disabled>
+                                    </div>
+                                    <div class="ps-2" style="padding-top: 30px;" style="width: 10%;">
+                                        <input type="text" name="bland" class="form-control" id="bland" value="MB" disabled >
+                                    </div>
+                                </div>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <div class="" style="width: 250%;">
+                                        <label for="bland" class="form-label">Data use</label>
+                                        <input type="text" name="bland" class="form-control" id="bland" value="<?php echo $data_use; ?>" disabled>
+                                    </div>
+                                    <div class="ps-2" style="padding-top: 30px;" style="width: 10%;">
+                                        <input type="text" name="bland" class="form-control" id="bland" value="MB" disabled >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="logoutButton">Login out</button>
+                        <button type="submit" class="btn btn-danger" name="edit_submit" id="editButton">Edit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <!-- =========================Model top up ============================ -->
-    <div class="modal fade mt-5 " id="TopUpModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="TopUpModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -436,79 +513,85 @@
     </div>
 
 
-    <!-- =========================Profile============================ -->
-    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true" style="z-index: 999999;">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+    <!-- =========================Exchange============================ -->
+    <div class="modal fade ExchangeModal mt-5" id="ExchangeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Exchange</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="" method="POST">
+                <form method="POST" id="exchange-form">
                     <div class="modal-body">
-                        <div class="text-center">
-                            <img src="https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=" alt="User Profile Image" class="rounded-circle" style="width: 150px; height: 150px">
+                        <div class="">
+                            <label for="exchange-input" class="col-form-label">Main Blade</label>
+                            <input type="text" name="exchange-input" class="form-control" id="exchange-input" value="<?php echo $main_bland; ?>" disabled>
+                            <input type="hidden" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>">
                         </div>
-                        <hr>
-                        <div class="mb-3">
-                            <h6 class="text-center">Detail information</h6>
+                        <div class="">
+                            <label for="" class="col-form-label">Number of transactions</label>
+                            <input type="text" name="transactions" class="form-control" id="transactions">
                         </div>
-                        <div class="d-flex gap-2">
-                            <div class="" style="width: 50%;">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" name="name" class="form-control" id="name" value="<?php echo $name; ?>">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone number</label>
-                                    <input type="text" name="phone" class="form-control" id="phone" value="<?php echo $phone; ?>">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="id_number" class="form-label">Id number</label>
-                                    <input type="text" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>" disabled>
-                                </div>
+                        <div class="">
+                            <label for="exchange-input" class="col-form-label">Exchange Plan</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="5GB" value="5">
+                                <label class="form-check-label" for="5GB">
+                                    5G / 7Day
+                                </label>
                             </div>
-                            <div class="" style="width: 50%;">
-                                <div class="mb-3 d-flex align-items-center gap-2">
-                                    <div class="" style="width: 250%;">
-                                        <label for="bland" class="form-label">Main bland</label>
-                                        <input type="text" name="bland" class="form-control" id="bland" value="<?php echo $main_bland; ?>" disabled>
-                                    </div>
-                                    <div class="" style="padding-top: 30px;" style="width: 10%;">
-                                        <input type="text" name="bland" class="form-control" id="bland" value="$" disabled >
-                                    </div>
-                                </div>
-                                <div class="mb-3 d-flex align-items-center gap-2">
-                                    <div class="" style="width: 250%;">
-                                        <label for="bland" class="form-label">Exchange bland</label>
-                                        <input type="text" name="bland" class="form-control" id="bland" value="<?php echo $ex_bland; ?>" disabled>
-                                    </div>
-                                    <div class="" style="padding-top: 30px;" style="width: 10%;">
-                                        <input type="text" name="bland" class="form-control" id="bland" value="MB" disabled >
-                                    </div>
-                                </div>
-                                <div class="mb-3 d-flex align-items-center gap-2">
-                                    <div class="" style="width: 250%;">
-                                        <label for="bland" class="form-label">Data use</label>
-                                        <input type="text" name="bland" class="form-control" id="bland" value="<?php echo $data_use; ?>" disabled>
-                                    </div>
-                                    <div class="" style="padding-top: 30px;" style="width: 10%;">
-                                        <input type="text" name="bland" class="form-control" id="bland" value="MB" disabled >
-                                    </div>
-                                </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="8GB" value="8">
+                                <label class="form-check-label" for="8GB">
+                                    8G / 7Day
+                                </label>
                             </div>
                         </div>
-
+                        <div class="">
+                            <label for="" class="col-form-label">Your Exchange Blade</label>
+                            <input type="text" name="Exchange_Blade" class="form-control" id="Exchange_Blade" disabled>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="logoutButton">Login out</button>
-                        <button type="submit" class="btn btn-danger" name="edit_submit" id="editButton">Edit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
+                        <button type="submit" name="Exchange" class="btn btn-primary">Exchange</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+<!--
+    <script>
+        // Get references to the elements
+        var transactionsInput = document.getElementById('transactions');
+        var exchangeInput = document.getElementById('Exchange_Blade');
+        var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
+        var mainBladeInput = document.getElementById('exchange-input');
+
+        // Add event listeners to the radio buttons and the transactions input
+        transactionsInput.addEventListener('input', calculateExchange);
+        radioButtons.forEach(function(radioButton) {
+            radioButton.addEventListener('change', calculateExchange);
+        });
+
+        // Function to calculate the exchange value
+        function calculateExchange() {
+            var transactions = parseFloat(transactionsInput.value);
+            var selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
+
+            if (selectedRadio) {
+                var radioValue = parseFloat(selectedRadio.value);
+                var exchangeValue = transactions * radioValue * 1000; // Convert GB to MB
+
+                // Update the Exchange Blade input value
+                exchangeInput.value = exchangeValue;
+            } else {
+                // If no radio button is selected, clear the Exchange Blade input
+                exchangeInput.value = '';
+            }
+        }
+    </script> -->
 
 
     <!-- =========================JS File============================ -->
@@ -517,8 +600,6 @@
     <script src="../js/smart.js"></script>
     <script src="../js/metfone.js"></script>
     <script src="../js/cellcard.js"></script>
-
-
-    
+    <script src="../js/exchange.js"></script>
 </body>
 </html>

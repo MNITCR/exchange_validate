@@ -1,88 +1,98 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Camera Access</title>
-</head>
-<body>
-    <h1>Camera Access</h1>
-
-    <video id="camera-feed" autoplay></video>
-    <button id="capture-button">Capture</button>
-
-    <script>
-        // Access the camera
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-                var videoElement = document.getElementById('camera-feed');
-                videoElement.srcObject = stream;
-                videoElement.play();
-            })
-            .catch(function (error) {
-                console.error('Error accessing camera:', error);
-            });
-
-        // Capture button click event
-        var captureButton = document.getElementById('capture-button');
-        captureButton.addEventListener('click', function () {
-            // Capture camera data and send it to the server (AJAX or form submission)
-            // Implement this part as needed
-        });
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>QR Scanner</title>
-    <script>
-        // Function to handle the input event on the input field
-        function handleInput(event) {
-            // Get the value entered in the input field
-            var inputValue = event.target.value;
-
-            // Update the value of the numQr input field with the scanned data
-            document.getElementById('paste-input').value = inputValue;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @media (max-width: 767px) {
+            #main-all-card-topUp {
+                height: auto;
+            }
         }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 
-        // Function to initialize the QR code scanner
-        function initializeScanner() {
-            // Check if the browser supports the getUserMedia API
-            if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
-                // Access the camera
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                    .then(function (stream) {
-                        // Create a video element to display the camera feed
-                        var video = document.createElement('video');
-                        document.body.appendChild(video);
+</head>
+<body class="bg-white">
+    <form method="POST">
+        <div class="modal-body">
+            <div class="">
+                <label for="exchange-input" class="col-form-label">Main Blade</label>
+                <input type="text" name="exchange-input" class="form-control" id="exchange-input" value="<?php echo $main_bland; ?>" disabled>
+                <input type="hidden" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>">
+            </div>
+            <div class="">
+                <label for="transactions" class="col-form-label">Number of transactions</label>
+                <input type="text" name="transactions" class="form-control" id="transactions">
+            </div>
+            <div class="">
+                <label class="col-form-label">Exchange Plan</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="5GB" value="5">
+                    <label class="form-check-label" for="5GB">
+                        5G / 7Day
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="8GB" value="8">
+                    <label class="form-check-label" for="8GB">
+                        8G / 7Day
+                    </label>
+                </div>
+            </div>
+            <div class="">
+                <label for="Exchange_Blade" class="col-form-label">Your Exchange Blade</label>
+                <input type="text" name="Exchange_Blade" class="form-control" id="Exchange_Blade" disabled>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
+            <button type="submit" name="Exchange" class="btn btn-primary">Exchange</button>
+        </div>
+    </form>
 
-                        // Set the video element's source to the camera stream
-                        video.srcObject = stream;
+    <script>
+        // Get references to the elements
+        var transactionsInput = document.getElementById('transactions');
+        var exchangeInput = document.getElementById('Exchange_Blade');
+        var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
+        var mainBladeInput = document.getElementById('exchange-input');
 
-                        // Play the video
-                        video.play();
+        // Add event listeners to the radio buttons and the transactions input
+        transactionsInput.addEventListener('input', calculateExchange);
+        radioButtons.forEach(function (radioButton) {
+            radioButton.addEventListener('change', calculateExchange);
+        });
 
-                        // Create an input field to capture scanned data
-                        var input = document.createElement('input');
-                        input.type = 'text';
-                        input.id = 'paste-input';
-                        input.placeholder = 'Scanned data will appear here';
-                        document.body.appendChild(input);
+        // Fetch the main_bland value from the database using PHP
+        <!-- var mainBladeValue = <?php echo $main_bland; ?>; -->
 
-                        // Listen for the input event on the input field
-                        input.addEventListener('input', handleInput);
-                    })
-                    .catch(function (error) {
-                        console.error('Error accessing camera:', error);
-                    });
+        // Function to calculate the exchange value
+        function calculateExchange() {
+            var transactions = parseFloat(transactionsInput.value);
+            var selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
+
+            if (selectedRadio) {
+                var radioValue = parseFloat(selectedRadio.value);
+                var exchangeValue = transactions * radioValue * 1000; // Convert GB to MB
+
+                if (transactions > mainBladeValue) {
+                    alert("You don't have enough Main Blade for this exchange.");
+                    transactionsInput.value = ''; // Clear the "Number of transactions" input
+                    exchangeInput.value = ''; // Clear the "Exchange Blade" input
+                } else {
+                    exchangeInput.value = exchangeValue;
+                }
             } else {
-                console.error('getUserMedia is not supported in this browser');
+                // If no radio button is selected, clear the Exchange Blade input
+                exchangeInput.value = '';
             }
         }
     </script>
-</head>
-<body onload="initializeScanner()">
-    <h1>QR Code Scanner</h1>
+
+
+
+
 </body>
 </html>

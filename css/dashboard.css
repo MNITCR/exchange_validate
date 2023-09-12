@@ -1,0 +1,44 @@
+@media (max-width: 500px) {
+    .detail_left{
+        width: 100%;
+        /* background-color: aqua; */
+    }
+    .detail_right{
+        min-width: 100%;
+        margin-top: -10px;
+    }
+    .main_detail{
+        flex-wrap: wrap;
+    }
+    #TopUpModal{
+        margin-top: 13rem;
+    }
+    .ExchangeModal{
+        padding-top: 5rem;
+    }
+}
+
+#main-all-card-topUp {
+    padding: 124.5px 0 124.5px 0;
+}
+
+/* ===========detain_information================== */
+.main_detail{
+    display: flex;
+    gap: 10px;
+    /* flex-wrap: wrap; */
+    width: 100%;
+}
+#TopUpModal{
+    margin-top: 13rem;
+}
+.ExchangeModal{
+    padding-top: 5rem;
+}
+.detail_left{
+    min-width: 50%;
+    /* gap: 20px; */
+}
+.detail_right{
+    max-width: 50%;
+}
