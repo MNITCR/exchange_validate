@@ -1,7 +1,7 @@
-// $(document).ready(function () {
-//     $('#smart-copy').popover();
-//     $('#smart-create-qr').popover();
-// });
+$(document).ready(function () {
+    $('#smart-copy').popover();
+    $('#smart-create-qr').popover();
+});
 
 document.addEventListener("DOMContentLoaded", function () {
     let qrImage = null;

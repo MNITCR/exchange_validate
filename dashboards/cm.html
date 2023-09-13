@@ -1,98 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        @media (max-width: 767px) {
-            #main-all-card-topUp {
-                height: auto;
-            }
+// =================Top up=====================
+if(isset($_POST['top_up'])){
+    $numQr = trim($_POST['numQr']);
+    $simNumber = $_COOKIE['simNumber'];
+    $id_number = $_POST['id_number'];
+    $id = $_POST['rg_id'];
+
+    if (empty($numQr)) {
+        echo "<script>alert('This input can\'t be null or empty !!!');</script>";
+    }
+    elseif($simNumber == $numQr){
+        // Check if the num_bland value already exists in the database
+        $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
+        $checkResult = mysqli_query($conn, $checkQuery);
+
+        if (mysqli_num_rows($checkResult) > 0) {
+            // num_bland value already exists, show an error message
+            echo "<script>alert('This card number is already used. Please choose a different one.');</script>";
         }
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        else{
+            // Determine the sv_by value based on the length of num_bland
+            $sv_by = '';
+            $num_bland_length = strlen($numQr);
 
-</head>
-<body class="bg-white">
-    <form method="POST">
-        <div class="modal-body">
-            <div class="">
-                <label for="exchange-input" class="col-form-label">Main Blade</label>
-                <input type="text" name="exchange-input" class="form-control" id="exchange-input" value="<?php echo $main_bland; ?>" disabled>
-                <input type="hidden" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>">
-            </div>
-            <div class="">
-                <label for="transactions" class="col-form-label">Number of transactions</label>
-                <input type="text" name="transactions" class="form-control" id="transactions">
-            </div>
-            <div class="">
-                <label class="col-form-label">Exchange Plan</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="5GB" value="5">
-                    <label class="form-check-label" for="5GB">
-                        5G / 7Day
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="8GB" value="8">
-                    <label class="form-check-label" for="8GB">
-                        8G / 7Day
-                    </label>
-                </div>
-            </div>
-            <div class="">
-                <label for="Exchange_Blade" class="col-form-label">Your Exchange Blade</label>
-                <input type="text" name="Exchange_Blade" class="form-control" id="Exchange_Blade" disabled>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
-            <button type="submit" name="Exchange" class="btn btn-primary">Exchange</button>
-        </div>
-    </form>
+            if ($num_bland_length == 15) {
+                $sv_by = 'Smart';
+            } elseif ($num_bland_length == 14) {
+                $sv_by = 'Metfone';
+            } elseif ($num_bland_length == 10) {
+                $sv_by = 'Cellcard';
+            }
 
-    <script>
-        // Get references to the elements
-        var transactionsInput = document.getElementById('transactions');
-        var exchangeInput = document.getElementById('Exchange_Blade');
-        var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
-        var mainBladeInput = document.getElementById('exchange-input');
+            // Check if the phone number already exists in the database
+            $checkQuery = "SELECT * FROM main_bland_table WHERE id_number = '$id_number' AND register_id = '$id'";
+            $checkResult = mysqli_query($conn, $checkQuery);
 
-        // Add event listeners to the radio buttons and the transactions input
-        transactionsInput.addEventListener('input', calculateExchange);
-        radioButtons.forEach(function (radioButton) {
-            radioButton.addEventListener('change', calculateExchange);
-        });
+            if (mysqli_num_rows($checkResult) > 0) {
+                // Phone number already exists, increment the main_bland value
+                $updateQuery = "UPDATE main_bland_table SET main_bland = main_bland + 1, num_bland = '$numQr', sv_by = '$sv_by'  WHERE id_number = '$id_number' AND register_id = '$id'";
 
-        // Fetch the main_bland value from the database using PHP
-        <!-- var mainBladeValue = <?php echo $main_bland; ?>; -->
-
-        // Function to calculate the exchange value
-        function calculateExchange() {
-            var transactions = parseFloat(transactionsInput.value);
-            var selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
-
-            if (selectedRadio) {
-                var radioValue = parseFloat(selectedRadio.value);
-                var exchangeValue = transactions * radioValue * 1000; // Convert GB to MB
-
-                if (transactions > mainBladeValue) {
-                    alert("You don't have enough Main Blade for this exchange.");
-                    transactionsInput.value = ''; // Clear the "Number of transactions" input
-                    exchangeInput.value = ''; // Clear the "Exchange Blade" input
+                if (mysqli_query($conn, $updateQuery)) {
+                    // Top-up successful, you can redirect or display a success message
+                    echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
                 } else {
-                    exchangeInput.value = exchangeValue;
+                    // Handle the case where the update query fails
+                    echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
                 }
             } else {
-                // If no radio button is selected, clear the Exchange Blade input
-                exchangeInput.value = '';
+                // Insert new user data into the database
+                $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, num_bland, sv_by, register_id) VALUES ('$id_number', 1, '$numQr', '$sv_by', '$id')";
+
+                if (mysqli_query($conn, $insertQuery)) {
+                    // Registration successful, you can redirect or display a success message
+                    echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                } else {
+                    // Handle the case where the insert query fails
+                    echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+                }
             }
         }
-    </script>
-
-
-
-
-</body>
-</html>
+    } else {
+        echo "<script>alert('This card number is expired')</script>";
+    }
+}

@@ -4,7 +4,6 @@ var exchangeInput = document.getElementById('Exchange_Blade');
 var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
 var mainBladeInput = document.getElementById('exchange-input').value;
 var exchangeInputSecond = document.getElementById('Exchange_Blade_second');
-//<?php echo $main_bland; ?>
 
 // Add event listeners to the radio buttons and the transactions input
 transactionsInput.addEventListener('input', calculateExchange);
@@ -23,8 +22,11 @@ function calculateExchange() {
 
         // Update the Exchange Blade input value
         exchangeInput.value = exchangeValue;
-        let ex = exchangeInput.value = exchangeInputSecond;
 
+        // Update the Exchange_Blade_second input
+        exchangeInputSecond.value = exchangeValue;
+
+        let ex = exchangeValue; // Removed the assignment of exchangeInputSecond.value to ex
         console.log(ex);
     } else {
         // If no radio button is selected, clear the Exchange Blade input
@@ -33,19 +35,22 @@ function calculateExchange() {
 }
 
 // Add event listener to the form submission
-document.getElementById('exchange-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.getElementById('Exchange').addEventListener('click', function(e) {
 
     var transactions = parseInt(transactionsInput.value);
     var selectedPlan = document.querySelector('input[name="flexRadioDefault"]:checked');
 
     if (isNaN(transactions) || transactions <= 0) {
         alert('Please enter a valid number of transactions. transactions must be greater than 0');
+        e.preventDefault();
+
         return;
     }
 
     if (!selectedPlan) {
         alert('Please select an exchange plan.');
+    e.preventDefault();
+
         return;
     }
 
@@ -55,6 +60,8 @@ document.getElementById('exchange-form').addEventListener('submit', function(e) 
     // Check if the total exchange exceeds the main blade value
     if(transactions > mainBladeInput){
         alert('You do not have enough main blade for this exchange.');
+        e.preventDefault();
+
         console.log(planValue);
         console.log(transactions);
         return;
