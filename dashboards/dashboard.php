@@ -13,7 +13,7 @@
     }
 
 
-    // top_up
+    // =================Top up=====================
     if(isset($_POST['top_up'])){
         $numQr = trim($_POST['numQr']);
         $simNumber = $_COOKIE['simNumber'];
@@ -81,6 +81,7 @@
     // Retrieve the phone number from the session
     $user_phone = $_SESSION["user_phonenumber"];
 
+    // =================Get data show in Profile=====================
     $query = "SELECT
         register.id AS id,
         register.name AS name,
@@ -106,7 +107,7 @@
         if (mysqli_num_rows($result) == 1) {
             $userData = mysqli_fetch_assoc($result);
 
-            print_r($userData);
+            // print_r($userData);
             $id = $userData["id"];
             $name = $userData["name"];
             $phone = $userData["phone_number"];
@@ -128,7 +129,7 @@
     }
 
 
-    // Check if the edit form is submitted
+    // =================Edit Profile=====================
     if (isset($_POST["edit_submit"])) {
         // Get updated user data from the form
         $updatedName = mysqli_real_escape_string($conn, $_POST["name"]);
@@ -188,6 +189,55 @@
     }
 
 
+    // =================Exchange=====================
+    if (isset($_POST["Exchange"])) {
+        $transactions = intval($_POST['transactions']);
+        // $selectedPlan = isset($_POST['flexRadioDefault']) ? intval($_POST['flexRadioDefault']) : 0;
+        // $exchangeBlade = intval($_POST['Exchange_Blade']);
+        $ex_second = ($_POST["Exchange_Blade_second"]);
+        $ex_input = intval($_POST['exchange-input']);
+        $id = intval($_POST['rg_id']);
+
+        print($ex_second);
+
+        // // Validate transactions and selectedPlan
+        // if ($transactions <= 0 || $selectedPlan <= 0) {
+        //     echo "<script>alert('Please enter valid values for transactions and select an exchange plan.');</script>";
+        // } else {
+        //     // Check if there's enough main blade
+        //     $mainBlade = $ex_input;
+        //     if ($exchangeBlade > $mainBlade) {
+        //         echo "<script>alert('You do not have enough main blade for this exchange.');</script>";
+        //     } else {
+        //         // Insert data into topup table
+        //         $insertQuery = "INSERT INTO topup (exchange_bland, created_at, register_id) VALUES ($transactions, now(), $id)";
+
+        //         if (mysqli_query($conn, $insertQuery)) {
+        //             // Update main blade value
+        //             $updateMainBladeQuery = "UPDATE register SET main_bland = main_bland - $transactions WHERE id = $id"; // Assuming $id is the user's ID
+
+        //             if (mysqli_query($conn, $updateMainBladeQuery)) {
+        //                 echo "<script>alert('Exchange successful.');window.location.href=('dashboard.php');</script>";
+        //             } else {
+        //                 echo "<script>alert('Error updating main blade: " . mysqli_error($conn) . "');</script>";
+        //             }
+        //         } else {
+        //             echo "<script>alert('Error inserting data: " . mysqli_error($conn) . "');</script>";
+        //         }
+        //     }
+        // }
+    }
+
+
+
+    // if(isset($_POST["Exchange"])){
+    //     $ex = $_POST['Exchange_Blade'];
+    //     $ex_second = $_POST['Exchange_Blade_second'];
+    //     $CbEx = $ex = $ex_second;
+    //     print($ex);
+    // }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -196,12 +246,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
-    <style>
-        .ExchangeModal{
-            padding-top: 5rem;
+    <!-- <link rel="stylesheet" href="../css/dashboard.css"> -->
+    <!-- <link rel="stylesheet" href="../css/dashboard.css" type="text/css"> -->
+    <link rel="stylesheet" href="../css/dashboard.css?<?php echo time(); ?>" type="text/css">
+
+    <!-- <style>
+        @media (max-width: 500px) {
+            .ExchangeModal{
+                margin-top: 10rem;
+            }
         }
-    </style>
+    </style> -->
 
 </head>
 <body>
@@ -514,7 +569,7 @@
 
 
     <!-- =========================Exchange============================ -->
-    <div class="modal fade ExchangeModal mt-5" id="ExchangeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade ExchangeModal" id="ExchangeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -547,9 +602,17 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="">
-                            <label for="" class="col-form-label">Your Exchange Blade</label>
-                            <input type="text" name="Exchange_Blade" class="form-control" id="Exchange_Blade" disabled>
+                        <div class="d-flex gap-2">
+                            <div class="Exchange_Blade">
+                                <label for="" class="col-form-label">Your Exchange Blade</label>
+                                <input type="text" name="Exchange_Blade" class="form-control" id="Exchange_Blade" disabled>
+                                <input type="hidden" name="Exchange_Blade_second" id="Exchange_Blade_second" >
+                                <!-- <input type="hidden" name="Exchange_Blade_second"> -->
+                            </div>
+                            <div class="Exchange_Blade_MB d-flex justify-content-center align-items-center">
+                                <!-- <label for="" class="col-form-label">Your Exchange Blade</label> -->
+                                <input type="text" class="form-control" disabled value="MB">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -560,38 +623,6 @@
             </div>
         </div>
     </div>
-
-<!--
-    <script>
-        // Get references to the elements
-        var transactionsInput = document.getElementById('transactions');
-        var exchangeInput = document.getElementById('Exchange_Blade');
-        var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
-        var mainBladeInput = document.getElementById('exchange-input');
-
-        // Add event listeners to the radio buttons and the transactions input
-        transactionsInput.addEventListener('input', calculateExchange);
-        radioButtons.forEach(function(radioButton) {
-            radioButton.addEventListener('change', calculateExchange);
-        });
-
-        // Function to calculate the exchange value
-        function calculateExchange() {
-            var transactions = parseFloat(transactionsInput.value);
-            var selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
-
-            if (selectedRadio) {
-                var radioValue = parseFloat(selectedRadio.value);
-                var exchangeValue = transactions * radioValue * 1000; // Convert GB to MB
-
-                // Update the Exchange Blade input value
-                exchangeInput.value = exchangeValue;
-            } else {
-                // If no radio button is selected, clear the Exchange Blade input
-                exchangeInput.value = '';
-            }
-        }
-    </script> -->
 
 
     <!-- =========================JS File============================ -->

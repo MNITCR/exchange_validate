@@ -14,15 +14,39 @@
         margin-top: 13rem;
     }
     .ExchangeModal{
-        padding-top: 5rem;
+        margin-top: 4rem;
     }
+    .Exchange_Blade{
+        max-width: 75%;
+    }
+    .Exchange_Blade_MB{
+        margin-top: 79rem;
+        max-width: 20%;
+    }
+}
+
+@media (max-width: 280px){
+    .ExchangeModal{
+        margin-top: 3rem;
+    }
+}
+
+@media (min-width: 500px) {
+    .Exchange_Blade{
+        min-width: 75%;
+    }
+    .Exchange_Blade_MB{
+        margin-top: 79rem;
+        min-width: 20%;
+    }
+
 }
 
 #main-all-card-topUp {
     padding: 124.5px 0 124.5px 0;
 }
 
-/* ===========detain_information================== */
+/* ===========Detain_information================== */
 .main_detail{
     display: flex;
     gap: 10px;
@@ -33,7 +57,7 @@
     margin-top: 13rem;
 }
 .ExchangeModal{
-    padding-top: 5rem;
+    padding-top: 7rem;
 }
 .detail_left{
     min-width: 50%;
@@ -41,4 +65,13 @@
 }
 .detail_right{
     max-width: 50%;
+}
+
+/* ==================Exchange_Blade================== */
+.Exchange_Blade{
+    width: 100%;
+}
+.Exchange_Blade_MB{
+    margin-top: 37px;
+    width: 20%;
 }

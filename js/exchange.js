@@ -3,6 +3,7 @@ var transactionsInput = document.getElementById('transactions');
 var exchangeInput = document.getElementById('Exchange_Blade');
 var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
 var mainBladeInput = document.getElementById('exchange-input').value;
+var exchangeInputSecond = document.getElementById('Exchange_Blade_second');
 //<?php echo $main_bland; ?>
 
 // Add event listeners to the radio buttons and the transactions input
@@ -22,6 +23,9 @@ function calculateExchange() {
 
         // Update the Exchange Blade input value
         exchangeInput.value = exchangeValue;
+        let ex = exchangeInput.value = exchangeInputSecond;
+
+        console.log(ex);
     } else {
         // If no radio button is selected, clear the Exchange Blade input
         exchangeInput.value = '';
@@ -36,7 +40,7 @@ document.getElementById('exchange-form').addEventListener('submit', function(e) 
     var selectedPlan = document.querySelector('input[name="flexRadioDefault"]:checked');
 
     if (isNaN(transactions) || transactions <= 0) {
-        alert('Please enter a valid number of transactions.');
+        alert('Please enter a valid number of transactions. transactions must be greater than 0');
         return;
     }
 
@@ -49,14 +53,11 @@ document.getElementById('exchange-form').addEventListener('submit', function(e) 
     var totalExchange = transactions * planValue;
 
     // Check if the total exchange exceeds the main blade value
-    if (transactions > mainBladeInput) {
+    if(transactions > mainBladeInput){
         alert('You do not have enough main blade for this exchange.');
-        return;
-    }
-    else{
-        alert('You have enough exchange');
         console.log(planValue);
         console.log(transactions);
+        return;
     }
 
     // Update the Exchange_Blade input
