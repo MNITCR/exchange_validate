@@ -224,7 +224,9 @@
 
             if ($updatedName === $currentName && $updatedPhone === $currentPhone) {
                 // No changes were made
-                echo "<script>alert('No changes were made. Please insert new data.');</script>";
+                echo "<script>
+                    swal('No changes were made. Please insert new data.');
+                </script>";
             } else {
                 // Check if the phone number is updated
                 $isPhoneNumberUpdated = ($updatedPhone !== $user_phone);
@@ -235,7 +237,9 @@
 
                 if (mysqli_num_rows($checkDuplicateResult) > 0 && $isPhoneNumberUpdated) {
                     // Phone number already in use
-                    echo "<script>alert('The phone number is already in use. Please choose a different one.');</script>";
+                    echo "<script>
+                        swal('The phone number is already in use. Please choose a different one.');
+                    </script>";
                 } else {
                     // Update user data in the database
                     $updateQuery = "UPDATE register SET
@@ -248,7 +252,15 @@
                         // Data updated successfully
                         if ($isPhoneNumberUpdated) {
                             // Phone number is updated, redirect to index.php
-                            echo "<script>alert('Update successful. Please login again.'); window.location.href = '../index.php';</script>";
+                            echo "<script>
+                                swal({
+                                    title: 'Good job!',
+                                    text: 'Update successful. Please login again.',
+                                    icon: 'success',
+                                }).then(function() {
+                                    window.location.href = '../index.php';
+                                });
+                            </script>";
                         } else {
                             // Other data updated, redirect to dashboard.php
                             echo "<script>alert('Update successful.'); window.location.href = 'dashboard.php';</script>";
@@ -341,14 +353,12 @@
     <!-- <link rel="stylesheet" href="../css/dashboard.css" type="text/css"> -->
     <link rel="stylesheet" href="../css/dashboard.css?<?php echo time(); ?>" type="text/css">
 
-    <!-- <style>
-        @media (max-width: 500px) {
-            .ExchangeModal{
-                margin-top: 10rem;
-            }
+    <style>
+        /* Define a CSS class for the "danger" border color */
+        .input-danger {
+            border-color: red !important;
         }
-    </style> -->
-
+    </style>
 </head>
 <body>
 
@@ -499,7 +509,7 @@
                 <div class="modal-footer">
                     <!-- <button type="button" class="btn btn-success" id="metfone-copy-qr">Copy qr</button> -->
                     <button type="button" class="btn btn-info text-white" id="metfone-download-qr">Download</button>
-                    <button type="button" class="btn btn-success" id="metfone-create-qr">Generate</button>
+                    <button type="button" class="btn btn-success" id="metfone-create-qr" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Generate">Generate</button>
                     <button class="btn btn-primary" data-bs-target="#modal_metfone" data-bs-toggle="modal">Back</button>
                 </div>
             </div>
@@ -540,7 +550,7 @@
                 <div class="modal-footer">
                     <!-- <button type="button" class="btn btn-success" id="cellCard-copy-qr">Copy qr</button> -->
                     <button type="button" class="btn btn-info text-white" id="cellCard-download-qr">Download</button>
-                    <button type="button" class="btn btn-success" id="cellCard-create-qr" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="Generate">Generate</button>
+                    <button type="button" class="btn btn-success" id="cellCard-create-qr" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Generate">Generate</button>
                     <button class="btn btn-primary" data-bs-target="#modal_cellCard" data-bs-toggle="modal">Back</button>
                 </div>
             </div>
@@ -571,7 +581,7 @@
                             <div class="detail_left">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Name</label>
-                                    <input type="text" name="name" class="form-control" id="name" value="<?php echo $name; ?>">
+                                    <input type="text" name="name" class="form-control" id="name" value="<?php echo $name; ?>" oninput="validateName(this)">
                                 </div>
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone number</label>
@@ -725,5 +735,19 @@
     <script src="../js/metfone.js"></script>
     <script src="../js/cellcard.js"></script>
     <script src="../js/exchange.js"></script>
+
+    <script>
+        // Function to validate the "Name" input
+        function validateName(input) {
+            var validName = /^[A-Za-z\s]+$/.test(input.value); // Check if the input contains only letters and spaces
+
+            if (!validName) {
+                input.classList.add('input-danger'); // Add the "input-danger" class for red border
+            } else {
+                input.classList.remove('input-danger'); // Remove the "input-danger" class
+            }
+        }
+
+    </script>
 </body>
 </html>

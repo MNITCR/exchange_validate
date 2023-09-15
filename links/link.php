@@ -10,6 +10,7 @@
 <body>
 
 
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.1.0/dist/jsQR.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <!-- <script src="https://cdn.rawgit.com/kazuhikoarase/qrcode-generator/0.2.5/qrcode.min.js"></script> -->

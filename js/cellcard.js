@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $('#cellCard-sim').popover();
+    $('#cellCard-copy').popover();
     $('#cellCard-create-qr').popover();
 });
 
