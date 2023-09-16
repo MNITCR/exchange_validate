@@ -2,4 +2,5 @@
     background: #099bb9;
     cursor: pointer;
     bottom: 10rem;
+    overflow-x: scroll;
 }

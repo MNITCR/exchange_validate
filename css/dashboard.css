@@ -57,7 +57,7 @@
     margin-top: 13rem;
 }
 .ExchangeModal{
-    padding-top: 7rem;
+    padding-top: 4rem;
 }
 .detail_left{
     min-width: 50%;
@@ -74,4 +74,13 @@
 .Exchange_Blade_MB{
     margin-top: 37px;
     width: 20%;
+}
+
+
+/* =================HistoryModalExchange================= */
+.HistoryModalExchange{
+    padding-top: 7rem;
+}
+table th{
+    white-space: nowrap;
 }

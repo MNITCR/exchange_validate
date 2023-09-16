@@ -13,72 +13,6 @@
     }
 
 
-    // // =================Top up=====================
-    // if(isset($_POST['top_up'])){
-    //     $numQr = trim($_POST['numQr']);
-    //     $simNumber = $_COOKIE['simNumber'];
-    //     $id_number = $_POST['id_number'];
-    //     $id = $_POST['rg_id'];
-
-    //     if (empty($numQr)) {
-    //         echo "<script>alert('This input can\'t be null or empty !!!');</script>";
-    //     }
-    //     elseif($simNumber == $numQr){
-    //         // Check if the num_bland value already exists in the database
-    //         $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
-    //         $checkResult = mysqli_query($conn, $checkQuery);
-
-    //         if (mysqli_num_rows($checkResult) > 0) {
-    //             // num_bland value already exists, show an error message
-    //             echo "<script>alert('This card number is already used. Please choose a different one.');</script>";
-    //         }
-    //         else{
-    //             // Determine the sv_by value based on the length of num_bland
-    //             $sv_by = '';
-    //             $num_bland_length = strlen($numQr);
-
-    //             if ($num_bland_length == 15) {
-    //                 $sv_by = 'Smart';
-    //             } elseif ($num_bland_length == 14) {
-    //                 $sv_by = 'Metfone';
-    //             } elseif ($num_bland_length == 10) {
-    //                 $sv_by = 'Cellcard';
-    //             }
-
-    //             // Check if the phone number already exists in the database
-    //             $checkQuery = "SELECT * FROM main_bland_table WHERE id_number = '$id_number' AND register_id = '$id'";
-    //             $checkResult = mysqli_query($conn, $checkQuery);
-
-    //             if (mysqli_num_rows($checkResult) > 0) {
-    //                 // Phone number already exists, increment the main_bland value
-    //                 $updateQuery = "UPDATE main_bland_table SET main_bland = main_bland + 1, num_bland = '$numQr', topup_activity = topup_activity + 1, sv_by = '$sv_by', updated_at = now()  WHERE id_number = '$id_number' AND register_id = '$id'";
-
-    //                 if (mysqli_query($conn, $updateQuery)) {
-    //                     // Top-up successful, you can redirect or display a success message
-    //                     echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
-    //                 } else {
-    //                     // Handle the case where the update query fails
-    //                     echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
-    //                 }
-    //             } else {
-    //                 // Insert new user data into the database
-    //                 $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, topup_activity, num_bland, sv_by, register_id, created_at) VALUES ('$id_number', 1, 0, '$numQr', '$sv_by', '$id', now())";
-
-    //                 if (mysqli_query($conn, $insertQuery)) {
-    //                     // Registration successful, you can redirect or display a success message
-    //                     echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
-    //                 } else {
-    //                     // Handle the case where the insert query fails
-    //                     echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
-    //                 }
-    //             }
-    //         }
-    //     } else {
-    //         echo "<script>alert('This card number is expired')</script>";
-    //     }
-    // }
-
-
     // =================Top up=====================
     if(isset($_POST['top_up'])){
         $numQr = trim($_POST['numQr']);
@@ -184,7 +118,7 @@
         if (mysqli_num_rows($result) == 1) {
             $userData = mysqli_fetch_assoc($result);
 
-            print_r($userData);
+            // print_r($userData);
             $id_mbt = $userData["id_mbt"];
             $id = $userData["id"];
             $name = $userData["name"];
@@ -263,7 +197,16 @@
                             </script>";
                         } else {
                             // Other data updated, redirect to dashboard.php
-                            echo "<script>alert('Update successful.'); window.location.href = 'dashboard.php';</script>";
+                            echo "<script>
+                                swal({
+                                    title: 'Good job!',
+                                    text: 'Update successful',
+                                    icon: 'success',
+                                }).then(function() {
+                                    window.location.href = 'dashboard.php';
+                                });
+                            </script>";
+
                         }
                         mysqli_close($conn);
                     } else {
@@ -282,12 +225,15 @@
     // =================Exchange=====================
     if (isset($_POST["Exchange"])) {
         $transactions = $_POST['transactions'];
+        $selectedPlanText = $_POST['flexRadioDefault'];
+        $Exchange_Blade_hidden = $_POST['Exchange_Blade_hidden'];
         $main_bland_second = intval($_POST['exchange-input-second']);
         $ex_second = intval($_POST["Exchange_Blade_second"]);
         $id_mbt = $_POST['id_mbt'];
         $id_reg = $_POST['id_reg'];
 
-        print($id_mbt . $id_reg);
+        // print($id_mbt . $id_reg);
+        print($Exchange_Blade_hidden);
 
         if($transactions > 0){
             // Check if the user has already exchanged before
@@ -317,17 +263,30 @@
 
             // Calculate the new main_bland value after the exchange
             $newMainBland = $main_bland_second - $transactions;
-            print($newMainBland);
+            // print($newMainBland);
 
             // Check if the new main_bland value is greater than or equal to 0
             if ($newMainBland >= 0) {
                 // Update main blade value
                 $updateMainBladeQuery = "UPDATE main_bland_table SET main_bland = $newMainBland WHERE id_mb = $id_mbt"; // Assuming $id_mbt is the user's ID
-                if (!mysqli_query($conn, $updateMainBladeQuery)) {
+
+                if (mysqli_query($conn, $updateMainBladeQuery)) {
+                    // Insert data into history_exchange table
+                    $insertHistoryQuery = "INSERT INTO history_exchange (transactions, exchange_plan, exchange_data, date, user_id)
+                                          VALUES ('$transactions', '$selectedPlanText', '$Exchange_Blade_hidden', now(), '$id_reg')";
+
+                    if (mysqli_query($conn, $insertHistoryQuery)) {
+                        echo "<script>alert('Exchange successful.');window.location.href=('./dashboard.php');</script>";
+                    } else {
+                        echo "<script>alert('Error inserting into history_exchange: " . mysqli_error($conn) . "');</script>";
+                    }
+                    echo "<script>alert('Exchange successful.');window.location.href=('dashboard.php');</script>";
+
+                } else {
                     echo "<script>alert('Error updating main blade: " . mysqli_error($conn) . "');</script>";
                 }
 
-                echo "<script>alert('Exchange successful.');window.location.href=('dashboard.php');</script>";
+                // echo "<script>alert('Exchange successful.');window.location.href=('dashboard.php');</script>";
             } else {
                 echo "<script>alert('You do not have enough main blade for this exchange.');</script>";
             }
@@ -385,8 +344,6 @@
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal" data-bs-whatever="@mdo">Profile</a></li>
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#TopUpModal" data-bs-whatever="@mdo">Top up</a></li>
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ExchangeModal" data-bs-whatever="@mdo">Exchange</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -558,7 +515,7 @@
     </div>
 
 
-    <!-- =========================Profile============================ -->
+    <!-- =========================Model Profile============================ -->
     <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true" style="z-index: 999999;">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -660,7 +617,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#HistoryModalTopup" data-bs-whatever="@mdo">History</button>
                         <button type="submit" name="top_up" class="btn btn-primary">Top Up</button>
                     </div>
                 </form>
@@ -669,7 +626,7 @@
     </div>
 
 
-    <!-- =========================Exchange============================ -->
+    <!-- =========================Model Exchange============================ -->
     <div class="modal fade ExchangeModal" id="ExchangeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-lg">
             <div class="modal-content">
@@ -683,7 +640,6 @@
                             <label for="exchange-input" class="col-form-label">Main Blade</label>
                             <input type="text" name="exchange-input" class="form-control" id="exchange-input" value="<?php echo $main_bland; ?>" disabled>
                             <input type="hidden" name="exchange-input-second" class="form-control" id="exchange-input-second" value="<?php echo $main_bland; ?>">
-                            <!-- <input type="hidden" name="id_number" class="form-control" id="id_number" value="<?php echo $idNumber; ?>"> -->
                             <input type="hidden" name="id_reg" id="id_reg" value="<?php echo $id; ?>">
                             <input type="hidden" name="id_mbt" id="id_mbt" value="<?php echo $id_mbt; ?>">
                         </div>
@@ -705,6 +661,7 @@
                                     8G / 7Day
                                 </label>
                             </div>
+                            <input type="hidden" name="Exchange_Blade_hidden" class="form-control" id="Exchange_Blade_hidden">
                         </div>
                         <div class="d-flex gap-2">
                             <div class="Exchange_Blade">
@@ -720,7 +677,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#HistoryModalExchange" data-bs-whatever="@mdo">History</button>
                         <button type="submit" name="Exchange" class="btn btn-primary" id="Exchange">Exchange</button>
                     </div>
                 </form>
@@ -728,13 +685,124 @@
         </div>
     </div>
 
+
+    <!-- =========================Model History Exchange============================ -->
+    <div class="modal fade HistoryModalExchange" id="HistoryModalExchange" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">History</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- table -->
+                <div class="overflow-x-scroll">
+                    <table class="table table-hover text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Transactions</th>
+                                <th scope="col">Exchange Plan</th>
+                                <th scope="col">Exchange Data</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                // SQL query to retrieve data from the exchange_validate table
+                                $query = "SELECT * FROM history_exchange WHERE user_id = '$id'";
+
+                                // Execute the query
+                                $result = mysqli_query($conn, $query);
+
+                                // Check if there are any rows in the result set
+                                if (mysqli_num_rows($result) > 0) {
+                                    // Loop through the rows and display the data
+                                    while ($userData = mysqli_fetch_assoc($result)) {
+                                        echo '<tr>';
+                                        echo '<td>'.'<span class="fw-bold">'. $userData['transactions'] . '</span>'. ' $' .'</td>';
+                                        echo '<td>'.'<span class="fw-bold">'. $userData['exchange_plan'] . '</span>'. ' G' .'</td>';
+                                        echo '<td>'.'<span class="fw-bold">'. $userData['exchange_data'] . '</span>'. ' MB' .'</td>';
+                                        echo '<td style="white-space: nowrap;">'.'<span class="fw-bold">'. $userData['date'] . '</span></td>';
+                                        echo '<td><i class="fa-solid fa-right-left text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Exchange" style="cursor: pointer;"></i></td>';
+                                        echo '</tr>';
+                                    }
+                                } else {
+                                    // No data found in the exchange_validate table
+                                    echo '<tr><td colspan="5">No data found.</td></tr>';
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================Model History Topup============================ -->
+    <div class="modal fade HistoryModalTopup" id="HistoryModalTopup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">History</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- table -->
+                <div class="overflow-x-scroll">
+                    <table class="table table-hover text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Transactions</th>
+                                <th scope="col">Exchange Plan</th>
+                                <th scope="col">Exchange Data</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                // SQL query to retrieve data from the exchange_validate table
+                                $query = "SELECT * FROM history_exchange";
+
+                                // Execute the query
+                                $result = mysqli_query($conn, $query);
+
+                                // Check if there are any rows in the result set
+                                if (mysqli_num_rows($result) > 0) {
+                                    // Loop through the rows and display the data
+                                    while ($userData = mysqli_fetch_assoc($result)) {
+                                        echo '<tr>';
+                                        echo '<td>'.'<span class="fw-bold">'. $userData['transactions'] . '</span>'. ' $' .'</td>';
+                                        echo '<td>'.'<span class="fw-bold">'. $userData['exchange_plan'] . '</span>'. ' G' .'</td>';
+                                        echo '<td>'.'<span class="fw-bold">'. $userData['exchange_data'] . '</span>'. ' MB' .'</td>';
+                                        echo '<td style="white-space: nowrap;">'.'<span class="fw-bold">'. $userData['date'] . '</span></td>';
+                                        echo '<td><i class="fa-solid fa-right-left text-success"></i></td>';
+                                        echo '</tr>';
+                                    }
+                                } else {
+                                    // No data found in the exchange_validate table
+                                    echo '<tr><td colspan="5">No data found.</td></tr>';
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
     <!-- =========================JS File============================ -->
     <script src="../js/logout.js"></script>
     <script src="../js/topup.js"></script>
     <script src="../js/smart.js"></script>
     <script src="../js/metfone.js"></script>
     <script src="../js/cellcard.js"></script>
-    <script src="../js/exchange.js"></script>
+    <script src="../js/exchange.js?<?php echo time(); ?>" type="text/javascript"></script>
+
 
     <script>
         // Function to validate the "Name" input

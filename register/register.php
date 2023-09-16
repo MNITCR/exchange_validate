@@ -33,6 +33,7 @@
                     window.location.href = '../index.php';
                 });
                 </script>";
+                mysqli_close($conn);
             } else {
                 // Handle the case where the insert query fails
                 echo "<script>swal('Error registering user: " . mysqli_error($conn) . "');</script>";
@@ -74,35 +75,50 @@
                 <div class="mb-3">
                     <h2 class="text-center fw-bold">REGISTER FORM</h2>
                 </div>
+
+                <!-- Name -->
                 <div class="mb-3">
                     <label for="name" class="form-label">Full name</label>
-                    <input type="text" name="name" class="form-control" id="name" required autofocus oninput="validateName(this)">
+                    <input type="text" name="name" class="form-control" id="name" required autofocus />
+                    <!-- <i class="fa fa-exclamation"></i> -->
+                    <div class="invalid-feedback">
+                        Name not allow number or spacial character
+                    </div>
                 </div>
 
-                <!-- phone number -->
+                <!-- Phone number -->
                 <div class="mb-3">
                     <label for="phonenumber" class="form-label">Phone number</label>
-                    <input type="text" name="phonenumber" class="form-control" id="phonenumber" required autofocus oninput="validatePhone(this)">
+                    <input type="text" name="phonenumber" class="form-control" id="phonenumber" required autofocus />
                     <div class="input-group-append d-none">
                         <span class="input-group-text">
                             <i class="fas fa-check text-success d-none"></i>
                         </span>
                     </div>
+                    <div class="invalid-feedback">
+                        Phone number not allow text or spacial character
+                    </div>
                 </div>
 
-                <!-- password -->
+                <!-- Password -->
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
-                        <input type="password" name="password" class="form-control" id="password" required autofocus>
-                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <input type="password" name="password" class="form-control" id="password" required autofocus />
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="border-radius: 0px 5px 5px 0px">
                             <i class="fa fa-eye-slash" aria-hidden="true"></i>
                         </button>
+                        <div class="invalid-feedback">
+                            Create password with spacial character!
+                        </div>
                     </div>
                     <input type="hidden" name="id_number" class="form-control" id="id_number">
                 </div>
 
-                <button type="submit" name="submit"  class="btn btn-primary">Register</button>
+                <!-- submit button -->
+                <div class="mb-3">
+                    <button type="submit" name="submit"  class="btn btn-primary">Register</button>
+                </div>
             </form>
             <div class="position-absolute d-flex justify-content-end" style="right: 0rem;bottom: 2rem">
                 <div class="main-register" title="login">
@@ -111,99 +127,8 @@
             </div>
         </div>
     </div>
-    <script>
-        let registerPass = document.getElementById('phonenumber').value;
-        // // Function to validate the "Name" input
-        // function validateName(input) {
-        //     var nameRegex = /[^A-Za-z\s]/g;
-        //     if (nameRegex.test(input.value)) {
-        //         input.classList.add('is-invalid');
-        //     } else {
-        //         input.classList.remove('is-invalid');
-        //     }
-        // }
 
-        // Function to validate the "Name" input
-        function validateName(input) {
-            var nameRegex = /[^A-Za-z\s]/g;
-
-            // Check if the input is empty
-            if (input.value.trim() === '') {
-                input.classList.remove('is-valid', 'is-invalid');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.add('d-none');
-                return;
-            }
-
-            if (input.value.length === 6 || input.value.length > 6 && input.value.length <= 30 || /\d/.test(input.value)) {
-                input.classList.add('is-valid');
-                input.classList.remove('is-invalid');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.remove('d-none');
-            } else {
-                input.classList.remove('is-valid');
-                input.classList.add('is-invalid');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.add('d-none');
-            }
-        }
-
-
-        // Function to validate the "Phone number" input
-        function validatePhone(input) {
-            var phoneRegex = /^[0-9]+$/; // Match only digits
-
-            // Check if the input is empty
-            if (input.value.trim() === '') {
-                input.classList.remove('is-valid', 'is-invalid');
-                var checkIcon = input.nextElementSibling.querySelector('.fa-check');
-                checkIcon.classList.add('d-none');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.add('d-none');
-                return;
-            }
-
-            if (input.value.length === 10 && phoneRegex.test(input.value)) {
-                input.classList.add('is-valid');
-                input.classList.remove('is-invalid');
-                var checkIcon = input.nextElementSibling.querySelector('.fa-check');
-                checkIcon.classList.remove('d-none');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.add('d-none');
-            } else if (input.value.length > 10 || !phoneRegex.test(input.value)) {
-                input.classList.remove('is-valid');
-                input.classList.add('is-invalid');
-                var checkIcon = input.nextElementSibling.querySelector('.fa-check');
-                checkIcon.classList.add('d-none');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.remove('d-none');
-            }
-            else {
-                input.classList.remove('is-valid', 'is-invalid');
-                var checkIcon = input.nextElementSibling.querySelector('.fa-check');
-                checkIcon.classList.add('d-none');
-                var exclamationIcon = input.nextElementSibling.querySelector('.fa-exclamation');
-                exclamationIcon.classList.add('d-none');
-            }
-        }
-
-
-
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = this.querySelector('i');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            }
-        });
-    </script>
+    <script src="../js/register.js"></script>
 </body>
 </html>
 

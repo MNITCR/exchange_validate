@@ -1,9 +1,17 @@
 // Get references to the elements
 var transactionsInput = document.getElementById('transactions');
 var exchangeInput = document.getElementById('Exchange_Blade');
+var Exchange_Blade_hidden = document.getElementById('Exchange_Blade_hidden');
 var radioButtons = document.querySelectorAll('input[name="flexRadioDefault"]');
 var mainBladeInput = document.getElementById('exchange-input').value;
 var exchangeInputSecond = document.getElementById('Exchange_Blade_second');
+
+// Initialize Bootstrap tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
 
 // Add event listeners to the radio buttons and the transactions input
 transactionsInput.addEventListener('input', calculateExchange);
@@ -19,14 +27,15 @@ function calculateExchange() {
     if (selectedRadio) {
         var radioValue = parseFloat(selectedRadio.value);
         var exchangeValue = transactions * radioValue * 1000; // Convert GB to MB
-
+        var Exchange_Value_hidden = radioValue * 1000;
         // Update the Exchange Blade input value
         exchangeInput.value = exchangeValue;
+        Exchange_Blade_hidden.value = Exchange_Value_hidden;
 
         // Update the Exchange_Blade_second input
         exchangeInputSecond.value = exchangeValue;
 
-        let ex = exchangeValue; // Removed the assignment of exchangeInputSecond.value to ex
+        let ex = Exchange_Value_hidden; // Removed the assignment of exchangeInputSecond.value to ex
         console.log(ex);
     } else {
         // If no radio button is selected, clear the Exchange Blade input
@@ -61,9 +70,6 @@ document.getElementById('Exchange').addEventListener('click', function(e) {
     if(transactions > mainBladeInput){
         alert('You do not have enough main blade for this exchange.');
         e.preventDefault();
-
-        console.log(planValue);
-        console.log(transactions);
         return;
     }
 
