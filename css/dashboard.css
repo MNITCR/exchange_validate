@@ -84,3 +84,9 @@
 table th{
     white-space: nowrap;
 }
+
+
+/* =================HistoryModalTopup================= */
+.HistoryModalTopup{
+    padding-top: 7rem;
+}

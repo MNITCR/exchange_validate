@@ -1,3 +1,24 @@
+<?php
+    // session_start();
+    // $exBld = $_SESSION["exchange_bland"];
+    // print($exBld);
+    include "../php/deduct_exchange_bland.php";
+    $user_id = $_SESSION["user_id"];
+    $query = "SELECT * FROM topup WHERE register_id = $user_id";
+    $result = mysqli_query($conn, $query);
+    if ($result) {
+        if (mysqli_num_rows($result) == 1) {
+            $topupData = mysqli_fetch_assoc($result);
+            print_r($topupData);
+            // echo($topupData["exchange_bland"]);
+        }else{
+
+        }
+    }else {
+        echo "Error: " . mysqli_error($conn);
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +43,7 @@
                     <a class="nav-link active" href="./video.php">Video</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                    <a class="nav-link active">Exchange Bland Count: <input type="text" name="exchange-bland-count" id="exchange-bland-count" value=""></input></a>
                 </li>
             </ul>
             <form class="d-flex" role="search">
@@ -43,100 +64,184 @@
                 <!-- video 1 -->
                 <div class="card" style="width: 18.9rem;">
                     <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
+                        <iframe class="embed-responsive-item rounded-top" src="../video/Lana Del Rey - Video Games -Lyrics-.mp4"></iframe>
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
                         <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
+                        <button class="btn btn-primary" id="watch-button">Watch</button>
                     </div>
                 </div>
 
-                <!-- video 2 -->
-                <div class="card" style="width: 301.8px;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
 
-                <!-- video 3 -->
-                <div class="card" style="width: 301.4px;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
 
-                <!-- video 4 -->
-                <div class="card" style="width: 302px;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
 
-                <!-- video 1 -->
-                <div class="card" style="width: 18.9rem;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
-
-                <!-- video 2 -->
-                <div class="card" style="width: 301.8px;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
-
-                <!-- video 3 -->
-                <div class="card" style="width: 301.4px;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
-
-                <!-- video 4 -->
-                <div class="card" style="width: 302px;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="https://www.youtube.com/embed/QabypY-fQho"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <a href="#" class="btn btn-primary">Watch</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // $(document).ready(function() {
+        //     $("#watch-button").click(function(event) {
+        //         event.preventDefault(); // Prevent the default behavior of the link
+
+        //         // Check if there is enough exchange_bland to deduct
+        //         var exchangeBland = <?php echo $exBld; ?>; // Replace with the actual exchange_bland value
+
+        //         console.log(exchangeBland);
+
+        //         if (exchangeBland > 0) {
+        //             // Deduct exchange_bland by 1 every second
+        //             var interval = setInterval(function() {
+        //                 exchangeBland -= 1;
+        //                 // Update the UI to show the remaining exchange_bland
+        //                 $("#exchange-bland-count").val(exchangeBland);
+
+        //                 // Update the exchange_bland value in the database (via AJAX)
+        //                 $.ajax({
+        //                     url: "../php/deduct_exchange_bland.php", // Replace with the actual path to your PHP script
+        //                     method: "POST",
+        //                     data: { exchangeBland: exchangeBland },
+        //                     cache: false, // Send the updated value
+        //                     success: function(response) {
+        //                         response = response.trim(); // Remove white spaces
+        //                         console.log("Response from server:", response);
+        //                         if (response === "success") {
+        //                             // Deduction successful
+        //                             if (exchangeBland === 0) {
+        //                                 // No more exchange_bland left, disable the button
+        //                                 $("#watch-button").attr("disabled", true);
+        //                             }
+        //                         } else if (response === "error") {
+        //                             // Handle the case where deduction fails
+        //                             alert("Failed to deduct exchange_bland. Database error occurred.");
+        //                         } else {
+        //                             // Handle other responses if needed
+        //                             alert("Unexpected response from server: " + response);
+        //                         }
+        //                     },
+
+        //                     error: function() {
+        //                         alert("An error occurred while deducting exchange_bland. Please try again later.");
+        //                     }
+        //                 });
+        //             }, 5000); // Repeat every 1 second
+        //         } else {
+        //             // Not enough exchange_bland, display an alert
+        //             alert("You do not have enough exchange_bland to watch.");
+        //         }
+        //     });
+        // });
+
+
+        // $(document).ready(function() {
+        //     var interval; // Declare the interval variable outside the click event handler
+
+        //     $("#watch-button").click(function(event) {
+        //         event.preventDefault();
+
+        //         clearInterval(interval); // Clear the previous interval
+
+        //         var exchangeBland = <?php echo $exBld; ?>;
+
+        //         if (exchangeBland > 0) {
+        //             interval = setInterval(function() {
+        //                 exchangeBland -= 0.5;
+        //                 $("#exchange-bland-count").val(exchangeBland);
+
+        //                 $.ajax({
+        //                     url: "../php/deduct_exchange_bland.php",
+        //                     method: "POST",
+        //                     data: { exchangeBland: exchangeBland },
+        //                     cache: false,
+        //                     success: function(response) {
+        //                         response = response.trim();
+        //                         console.log("Response from server:", response);
+        //                         if (response === "success") {
+        //                             if (exchangeBland === 0) {
+        //                                 $("#watch-button").attr("disabled", true);
+        //                                 clearInterval(interval); // Stop the interval when exchangeBland reaches 0
+        //                             }
+        //                         } else if (response === "error") {
+        //                             alert("Failed to deduct exchange_bland. Database error occurred.");
+        //                         } else {
+        //                             alert("Unexpected response from server: " + response);
+        //                         }
+        //                     },
+        //                     error: function() {
+        //                         alert("An error occurred while deducting exchange_bland. Please try again later.");
+        //                     }
+        //                 });
+        //             }, 5000);
+        //         } else {
+        //             alert("You do not have enough exchange_bland to watch.");
+        //         }
+        //     });
+        // });
+
+
+        $(document).ready(function() {
+            var interval;
+            var isPlaying = false; // Variable to track video state
+
+            $("#watch-button").click(function(event) {
+                event.preventDefault();
+
+                clearInterval(interval);
+
+                var exchangeBland = <?php echo $topupData["exchange_bland"]; ?>;
+
+                if (!isPlaying) {
+                    // If video is stopped, start playing
+                    isPlaying = true;
+                    $("#watch-button").text("Stop").addClass("btn-danger");
+
+                    if (exchangeBland > 0) {
+                        interval = setInterval(function() {
+                            exchangeBland -= 0.5;
+                            $("#exchange-bland-count").val(exchangeBland);
+
+                            $.ajax({
+                                url: "../php/deduct_exchange_bland.php",
+                                method: "POST",
+                                data: { exchangeBland: exchangeBland },
+                                cache: false,
+                                success: function(response) {
+                                    response = response.trim();
+                                    console.log("Response from server:", response);
+                                    if (response === "success") {
+                                        if (exchangeBland === 0) {
+                                            $("#watch-button").attr("disabled", true);
+                                            clearInterval(interval);
+                                        }
+                                    } else if (response === "error") {
+                                        alert("Failed to deduct exchange_bland. Database error occurred.");
+                                    } else {
+                                        alert("Unexpected response from server: " + response);
+                                    }
+                                },
+                                error: function() {
+                                    alert("An error occurred while deducting exchange_bland. Please try again later.");
+                                }
+                            });
+                        }, 1000);
+                    } else {
+                        alert("You do not have enough exchange_bland to watch.");
+                        isPlaying = false; // Reset video state
+                        $("#watch-button").text("Watch").removeClass("btn-danger");
+                    }
+                } else {
+                    // If video is playing, stop it
+                    isPlaying = false;
+                    $("#watch-button").text("Watch").removeClass("btn-danger");
+                    clearInterval(interval);
+                }
+            });
+        });
+
+
+
+
+    </script>
 </body>
 </html>
