@@ -25,7 +25,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include "../links/link.php";?>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
     <title>Video</title>
+    <style>
+        .card-text.show-full-text {
+        white-space: normal; /* Display the text as normal (not nowrap) */
+        overflow: visible; /* Allow the text to overflow the container */
+        text-overflow: initial; /* Remove ellipsis */
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary" style="position: fixed;z-index: 9999;width: 100%">
@@ -43,7 +53,7 @@
                     <a class="nav-link active" href="./video.php">Video</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active">Exchange Bland Count: <input type="text" name="exchange-bland-count" id="exchange-bland-count" value=""></input></a>
+                    <a class="nav-link active">Exchange Bland Count: <input type="text" name="exchange-bland-count" id="exchange-bland-count" value="<?php echo $topupData["exchange_bland"]; ?>"></input></a>
                 </li>
             </ul>
             <form class="d-flex" role="search">
@@ -61,187 +71,307 @@
                 <h1 class="text-center">Album Video</h1>
             </div>
             <div class="d-flex gap-3 flex-wrap justify-content-center mb-5">
-                <!-- video 1 -->
-                <div class="card" style="width: 18.9rem;">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item rounded-top" src="../video/Lana Del Rey - Video Games -Lyrics-.mp4"></iframe>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Lana Del Rey - Video Games (Lyrics)</h5>
-                        <p class="card-text">Lana Del Rey - Video Games (Lyrics)</p>
-                        <button class="btn btn-primary" id="watch-button">Watch</button>
-                    </div>
-                </div>
+                <?php
+                    $videoFolder = "../video/"; // Replace with the path to your video folder
+                    $videoFiles = scandir($videoFolder);
 
-
-
-
+                    // Loop through video files
+                    foreach ($videoFiles as $videoFile) {
+                        // Check if the file is a video (you can add more file extensions as needed)
+                        $allowedExtensions = array("mp4", "avi", "mkv", "mov");
+                        $fileExtension = strtolower(pathinfo($videoFile, PATHINFO_EXTENSION));
+                        if (in_array($fileExtension, $allowedExtensions)) {
+                            $videoTitle = pathinfo($videoFile, PATHINFO_FILENAME);
+                            $videoPath = $videoFolder . $videoFile;
+                    ?>
+                        <div class="card" style="width: 18.9rem;">
+                            <div class="embed-responsive embed-responsive-16by9 rounded-top" style="overflow: hidden; position: relative;">
+                                <video id="video-<?php echo $videoTitle; ?>" class="embed-responsive-item rounded-top video" src="<?php echo $videoPath; ?>" style="width: 18.9rem;"></video>
+                                <div class="text-white full-video" data-video-id="video-<?php echo $videoTitle; ?>" style="position: absolute; bottom: 0.5rem; right: 10px; cursor: pointer;"><i class="fa-solid fa-expand"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo $videoTitle; ?></h5>
+                                <div class="card-text-container d-flex">
+                                    <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <?php echo $videoTitle; ?>
+                                    </p>
+                                    <i class="fa-solid fa-caret-down caret-icon mt-1 text-secondary" style="cursor: pointer;"></i>
+                                </div>
+                                <button class="btn btn-primary watch-button" id="watch-button-<?php echo $videoTitle; ?>">Watch</button>
+                            </div>
+                        </div>
+                    <?php
+                        }
+                    }
+                ?>
             </div>
         </div>
     </div>
 
     <script>
-        // $(document).ready(function() {
-        //     $("#watch-button").click(function(event) {
-        //         event.preventDefault(); // Prevent the default behavior of the link
-
-        //         // Check if there is enough exchange_bland to deduct
-        //         var exchangeBland = <?php echo $exBld; ?>; // Replace with the actual exchange_bland value
-
-        //         console.log(exchangeBland);
-
-        //         if (exchangeBland > 0) {
-        //             // Deduct exchange_bland by 1 every second
-        //             var interval = setInterval(function() {
-        //                 exchangeBland -= 1;
-        //                 // Update the UI to show the remaining exchange_bland
-        //                 $("#exchange-bland-count").val(exchangeBland);
-
-        //                 // Update the exchange_bland value in the database (via AJAX)
-        //                 $.ajax({
-        //                     url: "../php/deduct_exchange_bland.php", // Replace with the actual path to your PHP script
-        //                     method: "POST",
-        //                     data: { exchangeBland: exchangeBland },
-        //                     cache: false, // Send the updated value
-        //                     success: function(response) {
-        //                         response = response.trim(); // Remove white spaces
-        //                         console.log("Response from server:", response);
-        //                         if (response === "success") {
-        //                             // Deduction successful
-        //                             if (exchangeBland === 0) {
-        //                                 // No more exchange_bland left, disable the button
-        //                                 $("#watch-button").attr("disabled", true);
-        //                             }
-        //                         } else if (response === "error") {
-        //                             // Handle the case where deduction fails
-        //                             alert("Failed to deduct exchange_bland. Database error occurred.");
-        //                         } else {
-        //                             // Handle other responses if needed
-        //                             alert("Unexpected response from server: " + response);
-        //                         }
-        //                     },
-
-        //                     error: function() {
-        //                         alert("An error occurred while deducting exchange_bland. Please try again later.");
-        //                     }
-        //                 });
-        //             }, 5000); // Repeat every 1 second
-        //         } else {
-        //             // Not enough exchange_bland, display an alert
-        //             alert("You do not have enough exchange_bland to watch.");
-        //         }
-        //     });
-        // });
-
-
-        // $(document).ready(function() {
-        //     var interval; // Declare the interval variable outside the click event handler
-
-        //     $("#watch-button").click(function(event) {
-        //         event.preventDefault();
-
-        //         clearInterval(interval); // Clear the previous interval
-
-        //         var exchangeBland = <?php echo $exBld; ?>;
-
-        //         if (exchangeBland > 0) {
-        //             interval = setInterval(function() {
-        //                 exchangeBland -= 0.5;
-        //                 $("#exchange-bland-count").val(exchangeBland);
-
-        //                 $.ajax({
-        //                     url: "../php/deduct_exchange_bland.php",
-        //                     method: "POST",
-        //                     data: { exchangeBland: exchangeBland },
-        //                     cache: false,
-        //                     success: function(response) {
-        //                         response = response.trim();
-        //                         console.log("Response from server:", response);
-        //                         if (response === "success") {
-        //                             if (exchangeBland === 0) {
-        //                                 $("#watch-button").attr("disabled", true);
-        //                                 clearInterval(interval); // Stop the interval when exchangeBland reaches 0
-        //                             }
-        //                         } else if (response === "error") {
-        //                             alert("Failed to deduct exchange_bland. Database error occurred.");
-        //                         } else {
-        //                             alert("Unexpected response from server: " + response);
-        //                         }
-        //                     },
-        //                     error: function() {
-        //                         alert("An error occurred while deducting exchange_bland. Please try again later.");
-        //                     }
-        //                 });
-        //             }, 5000);
-        //         } else {
-        //             alert("You do not have enough exchange_bland to watch.");
-        //         }
-        //     });
-        // });
-
-
         $(document).ready(function() {
-            var interval;
-            var isPlaying = false; // Variable to track video state
+            $(".caret-icon").click(function() {
+                var $textElement = $(this).prev(".card-text");
+                var $button = $(this).siblings(".watch-button");
 
-            $("#watch-button").click(function(event) {
-                event.preventDefault();
-
-                clearInterval(interval);
-
-                var exchangeBland = <?php echo $topupData["exchange_bland"]; ?>;
-
-                if (!isPlaying) {
-                    // If video is stopped, start playing
-                    isPlaying = true;
-                    $("#watch-button").text("Stop").addClass("btn-danger");
-
-                    if (exchangeBland > 0) {
-                        interval = setInterval(function() {
-                            exchangeBland -= 0.5;
-                            $("#exchange-bland-count").val(exchangeBland);
-
-                            $.ajax({
-                                url: "../php/deduct_exchange_bland.php",
-                                method: "POST",
-                                data: { exchangeBland: exchangeBland },
-                                cache: false,
-                                success: function(response) {
-                                    response = response.trim();
-                                    console.log("Response from server:", response);
-                                    if (response === "success") {
-                                        if (exchangeBland === 0) {
-                                            $("#watch-button").attr("disabled", true);
-                                            clearInterval(interval);
-                                        }
-                                    } else if (response === "error") {
-                                        alert("Failed to deduct exchange_bland. Database error occurred.");
-                                    } else {
-                                        alert("Unexpected response from server: " + response);
-                                    }
-                                },
-                                error: function() {
-                                    alert("An error occurred while deducting exchange_bland. Please try again later.");
-                                }
-                            });
-                        }, 1000);
-                    } else {
-                        alert("You do not have enough exchange_bland to watch.");
-                        isPlaying = false; // Reset video state
-                        $("#watch-button").text("Watch").removeClass("btn-danger");
-                    }
+                if ($textElement.hasClass("expanded")) {
+                    $textElement.removeClass("expanded");
+                    $textElement.css("white-space", "nowrap");
+                    $textElement.css("overflow", "hidden");
+                    $textElement.css("text-overflow", "ellipsis");
+                    $button.text("Watch");
+                    $(this).removeClass("fa-caret-up").addClass("fa-caret-down");
                 } else {
-                    // If video is playing, stop it
-                    isPlaying = false;
-                    $("#watch-button").text("Watch").removeClass("btn-danger");
-                    clearInterval(interval);
+                    $textElement.addClass("expanded");
+                    $textElement.css("white-space", "normal");
+                    $textElement.css("overflow", "visible");
+                    $textElement.css("text-overflow", "clip");
+                    $button.text("Hide");
+                    $(this).removeClass("fa-caret-down").addClass("fa-caret-up");
                 }
             });
         });
-
-
-
-
     </script>
+
+    <script>
+        $(document).ready(function() {
+        // Click event handler for full-video element
+        $(".full-video").click(function () {
+            var videoId = $(this).data("video-id");
+            var videoElement = document.getElementById(videoId);
+
+            if (videoElement) {
+                toggleFullScreen(videoElement);
+            }
+        });
+
+        // Function to toggle full-screen mode for a specific video element
+        function toggleFullScreen(videoElement) {
+            if (!document.fullscreenElement) {
+                if (videoElement.requestFullscreen) {
+                    videoElement.requestFullscreen();
+                } else if (videoElement.mozRequestFullScreen) {
+                    videoElement.mozRequestFullScreen();
+                } else if (videoElement.webkitRequestFullscreen) {
+                    videoElement.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
+        // Object to store exchange balance for each video
+        var exchangeBlandMap = {};
+        var currentPlayingVideo = null;
+        var interval = null;
+
+        // Function to stop all videos
+        function stopAllVideos() {
+            $('.video').each(function () {
+                this.pause();
+            });
+            currentPlayingVideo = null;
+            $('.watch-button').text('Watch').removeClass('btn-danger');
+            clearInterval(interval);
+        }
+
+        // Click event handler for watch-button
+        $(document).on('click', '.watch-button', function (event) {
+            var buttonId = event.currentTarget.id;
+            var videoId = buttonId.replace('watch-button-', ''); // Extract the video ID
+            var videoElement = document.getElementById('video-' + videoId);
+            var inputValueCount = $("#exchange-bland-count").val();
+
+            event.preventDefault();
+
+            // Clear the interval for the previous video
+            clearInterval(interval);
+
+            if (!exchangeBlandMap.hasOwnProperty(videoId)) {
+                // If no exchange balance exists for this video, initialize it
+                exchangeBlandMap[videoId] = <?php echo $topupData["exchange_bland"]; ?>;
+            }
+
+            var exchangeBland = exchangeBlandMap[videoId];
+            exchangeBland = inputValueCount;
+
+            // updateExchangeBland in php
+            function updateExchangeBland() {
+                $.ajax({
+                    url: '../php/deduct_exchange_bland.php',
+                    method: 'POST',
+                    data: { exchangeBland: inputValueCount },
+                    cache: false,
+                    success: function (response) {
+                        response = response.trim();
+                        console.log('Response from server:', response);
+                        if (response === 'success') {
+                            if (inputValueCount <= 0) {
+                                swal({
+                                    text: "You don't have enough data to continue.",
+                                    icon: "error",
+                                });
+                                stopAllVideos();
+                            } else if (inputValueCount === 100) {
+                                stopAllVideos();
+                                swal({
+                                    text: "Your data is only 100MB left!",
+                                    icon: "warning",
+                                    buttons: true,
+                                    dangerMode: true,
+                                }).then((willDelete) => {
+                                    if (willDelete) {
+                                        videoElement.play();
+                                        interval = setInterval(function () {
+                                            inputValueCount -= 1;
+                                            $('#exchange-bland-count').val(inputValueCount);
+
+                                            if (inputValueCount <= 0) {
+                                                clearInterval(interval);
+                                                videoElement.pause();
+                                                inputValueCount = 0;
+                                                $('#exchange-bland-count').val(inputValueCount);
+                                            }
+                                        }, 1000);
+                                    } else {
+                                        videoElement.pause();
+                                        inputValueCount = 0;
+                                        $('#exchange-bland-count').val(inputValueCount);
+                                        currentPlayingVideo = null;
+                                        clearInterval(interval);
+                                        $('.watch-button').text('Watch').removeClass('btn-danger');
+                                    }
+                                });
+                            } else {
+                                console.log(inputValueCount);
+                            }
+                        } else if (response === 'error') {
+                            alert('Failed to deduct exchange_bland. Database error occurred.');
+                        } else {
+                            alert('Unexpected response from server: ' + response);
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while deducting exchange_bland. Please try again later.');
+                    }
+                });
+            }
+
+            if (!currentPlayingVideo) {
+                // If no video is currently playing, start this one
+                currentPlayingVideo = videoElement;
+                videoElement.play();
+                $(this).text('Stop').addClass('btn-danger');
+
+                if (inputValueCount > 0) {
+                    interval = setInterval(function () {
+                        inputValueCount -= 1;
+                        $('#exchange-bland-count').val(inputValueCount);
+                        // Update the exchange_bland value periodically
+                        updateExchangeBland();
+                    }, 1000);
+                } else {
+                    swal({
+                        text: "You don't have enough data to continue.",
+                        icon: "error",
+                    });
+                    stopAllVideos();
+                }
+            } else if (currentPlayingVideo === videoElement) {
+                // If this video is currently playing, stop it
+                videoElement.pause();
+                currentPlayingVideo = null;
+                $(this).text('Watch').removeClass('btn-danger');
+                clearInterval(interval);
+            } else {
+                // If another video is currently playing, stop it and start this one
+                currentPlayingVideo.pause();
+                currentPlayingVideo = videoElement;
+                videoElement.play();
+                $('.watch-button').not(this).text('Watch').removeClass('btn-danger');
+                $(this).text('Stop').addClass('btn-danger');
+
+                // Start a new interval for the currently playing video
+                if (inputValueCount > 0) {
+                    interval = setInterval(function () {
+                        inputValueCount -= 1;
+                        $('#exchange-bland-count').val(inputValueCount);
+
+                        // Update the exchange_bland value periodically
+                        updateExchangeBland();
+
+                        if (inputValueCount <= 0) {
+                            swal({
+                                text: "You don't have enough data to continue.",
+                                icon: "error",
+                            });
+                            stopAllVideos();
+                        } else if (inputValueCount === 100) {
+                            stopAllVideos();
+                            swal({
+                                text: "Your data is only 100MB left!",
+                                icon: "warning",
+                                buttons: true,
+                                dangerMode: true,
+                            }).then((willDelete) => {
+                                if (willDelete) {
+                                    videoElement.play();
+                                    interval = setInterval(function () {
+                                        inputValueCount -= 1;
+                                        $('#exchange-bland-count').val(inputValueCount);
+
+                                        if (inputValueCount <= 0) {
+                                            clearInterval(interval);
+                                            videoElement.pause();
+                                            inputValueCount = 0;
+                                            $('#exchange-bland-count').val(inputValueCount);
+                                        }
+                                    }, 1000);
+                                } else {
+                                    videoElement.pause();
+                                    inputValueCount = 0;
+                                    $('#exchange-bland-count').val(inputValueCount);
+                                    currentPlayingVideo = null;
+                                    clearInterval(interval);
+                                    $('.watch-button').text('Watch').removeClass('btn-danger');
+                                }
+                            });
+                        } else {
+                            console.log(inputValueCount);
+                        }
+                    }, 1000);
+                } else {
+                    swal({
+                        text: "You don't have enough data to continue.",
+                        icon: "error",
+                    });
+                    stopAllVideos();
+                }
+            }
+        });
+
+        // Function to stop all videos
+        function stopAllVideos() {
+            $('.video').each(function() {
+                this.pause();
+            });
+            currentPlayingVideo = null;
+            $('.watch-button').text('Watch').removeClass('btn-danger');
+            clearInterval(interval);
+        }
+    });
+    </script>
+
+
+
+
+
+
 </body>
 </html>

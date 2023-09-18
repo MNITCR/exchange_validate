@@ -1,9 +1,6 @@
 <?php
     include '../conn.php';
     session_start();
-    $exBld = $_SESSION["exchange_bland"];
-    // Debugging: Output the received POST data
-
 
     if (isset($_POST["exchangeBland"])) {
         $newExchangeBland = intval($_POST["exchangeBland"]);
@@ -20,7 +17,7 @@
             echo "error";
         }
     } else {
-        echo "invalid";
+        // echo "invalid";
     }
 
 

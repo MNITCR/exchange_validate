@@ -61,11 +61,19 @@
 
                         if (mysqli_query($conn, $updateQuery)) {
                             // Top-up successful, insert data into history_topup table
-                            $insertQueryTP = "INSERT INTO history_topup (card_number, service_by, transaction_date, register_id)
+                            $updateQueryTP = "INSERT INTO history_topup (card_number, service_by, transaction_date, register_id)
                             VALUES ('$numQr', '$sv_by', NOW(), '$id')";
 
-                            if (mysqli_query($conn, $insertQueryTP)) {
-                                echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                            if (mysqli_query($conn, $updateQueryTP)) {
+                                echo "<script>
+                                    swal({
+                                        text: 'Top up successful.',
+                                        icon: 'success',
+                                    }).then(function() {
+                                        window.location.href = 'dashboard.php';
+                                    });
+                                </script>";
+                                // echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
                             } else {
                                 echo "Error recording top-up transaction: " . mysqli_error($conn);
                             }
@@ -84,7 +92,14 @@
                         VALUES ('$numQr', '$sv_by', NOW(), '$id')";
 
                         if (mysqli_query($conn, $insertQueryTP)) {
-                            echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
+                            echo "<script>
+                                swal({
+                                    text: 'Top up successful.',
+                                    icon: 'success',
+                                }).then(function() {
+                                    window.location.href = 'dashboard.php';
+                                });
+                            </script>";
                         } else {
                             echo "Error recording top-up transaction: " . mysqli_error($conn);
                         }
