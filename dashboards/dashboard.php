@@ -622,7 +622,7 @@
 
 
     <!-- =========================Model top up ============================ -->
-    <div class="modal fade" id="TopUpModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="TopUpModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 999999;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -655,7 +655,7 @@
 
 
     <!-- =========================Model Exchange============================ -->
-    <div class="modal fade ExchangeModal" id="ExchangeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade ExchangeModal" id="ExchangeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 999999;">
         <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -715,7 +715,7 @@
 
 
     <!-- =========================Model History Exchange============================ -->
-    <div class="modal fade HistoryModalExchange" id="HistoryModalExchange" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade HistoryModalExchange" id="HistoryModalExchange" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 999999;">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -771,7 +771,7 @@
 
 
     <!-- =========================Model History Topup============================ -->
-    <div class="modal fade HistoryModalTopup" id="HistoryModalTopup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade HistoryModalTopup" id="HistoryModalTopup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 999999;">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -851,7 +851,10 @@
                             window.location.href = "./video.php";
                         } else {
                             // User does not have enough exchange_bland, display an alert
-                            alert("You do not have enough exchange_bland for this action.");
+                            swal({
+                                text: 'You do not have enough exchange bland for this action!!!',
+                                icon: 'error',
+                            });
                         }
                     },
                     error: function(xhr, status, error) {
