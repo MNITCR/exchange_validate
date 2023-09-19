@@ -1,64 +1,62 @@
-// =================Top up=====================
-if(isset($_POST['top_up'])){
-    $numQr = trim($_POST['numQr']);
-    $simNumber = $_COOKIE['simNumber'];
-    $id_number = $_POST['id_number'];
-    $id = $_POST['rg_id'];
+<!-- card video -->
+<div class="container-fluid bg-dark text-white">
+    <div class="container d-flex flex-column justify-content-center" style="padding: 106px 0 106px 0;">
+        <div class="mb-5">
+            <h1 class="text-center">Album Video</h1>
+        </div>
+        <div class="d-flex gap-3 flex-wrap justify-content-center mb-5">
+            <?php
+                $videoFolder = "../video/"; // Replace with the path to your video folder
+                $videoFiles = scandir($videoFolder);
 
-    if (empty($numQr)) {
-        echo "<script>alert('This input can\'t be null or empty !!!');</script>";
-    }
-    elseif($simNumber == $numQr){
-        // Check if the num_bland value already exists in the database
-        $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
-        $checkResult = mysqli_query($conn, $checkQuery);
+                // Loop through video files
+                foreach ($videoFiles as $videoFile) {
+                    // Check if the file is a video (you can add more file extensions as needed)
+                    $allowedExtensions = array("mp4", "avi", "mkv", "mov");
+                    $fileExtension = strtolower(pathinfo($videoFile, PATHINFO_EXTENSION));
+                    if (in_array($fileExtension, $allowedExtensions)) {
+                        $videoTitle = pathinfo($videoFile, PATHINFO_FILENAME);
+                        $videoPath = $videoFolder . $videoFile;
+                ?>
+                    <!-- Placeholder cards -->
+                    <div class="card placeholder-card" id="placeholder-card">
+                        <div class="card-body">
+                            <h5 class="card-title placeholder-glow">
+                                <span class="placeholder col-6"></span>
+                            </h5>
+                            <p class="card-text placeholder-glow">
+                                <span class="placeholder col-7"></span>
+                                <span class="placeholder col-4"></span>
+                                <span class="placeholder col-4"></span>
+                                <span class="placeholder col-6"></span>
+                                <span class="placeholder col-8"></span>
+                            </p>
+                            <a class="btn btn-primary disabled placeholder col-6" aria-disabled="true"></a>
+                        </div>
+                    </div>
 
-        if (mysqli_num_rows($checkResult) > 0) {
-            // num_bland value already exists, show an error message
-            echo "<script>alert('This card number is already used. Please choose a different one.');</script>";
-        }
-        else{
-            // Determine the sv_by value based on the length of num_bland
-            $sv_by = '';
-            $num_bland_length = strlen($numQr);
-
-            if ($num_bland_length == 15) {
-                $sv_by = 'Smart';
-            } elseif ($num_bland_length == 14) {
-                $sv_by = 'Metfone';
-            } elseif ($num_bland_length == 10) {
-                $sv_by = 'Cellcard';
-            }
-
-            // Check if the phone number already exists in the database
-            $checkQuery = "SELECT * FROM main_bland_table WHERE id_number = '$id_number' AND register_id = '$id'";
-            $checkResult = mysqli_query($conn, $checkQuery);
-
-            if (mysqli_num_rows($checkResult) > 0) {
-                // Phone number already exists, increment the main_bland value
-                $updateQuery = "UPDATE main_bland_table SET main_bland = main_bland + 1, num_bland = '$numQr', sv_by = '$sv_by'  WHERE id_number = '$id_number' AND register_id = '$id'";
-
-                if (mysqli_query($conn, $updateQuery)) {
-                    // Top-up successful, you can redirect or display a success message
-                    echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
-                } else {
-                    // Handle the case where the update query fails
-                    echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
+                    <div class="card" style="width: 18.9rem;">
+                        <div class="embed-responsive embed-responsive-16by9 rounded-top" style="overflow: hidden; position: relative;">
+                            <video id="video-<?php echo $videoTitle; ?>" class="embed-responsive-item rounded-top video" src="<?php echo $videoPath; ?>" style="width: 18.9rem;"></video>
+                            <div class="text-white full-video" data-video-id="video-<?php echo $videoTitle; ?>" style="position: absolute; bottom: 0.5rem; right: 10px; cursor: pointer;display: none;"><i class="fa-solid fa-expand"></i></div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo $videoTitle; ?></h5>
+                            <div class="card-text-container d-flex">
+                                <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <?php echo $videoTitle; ?>
+                                </p>
+                                <i class="fa-solid fa-caret-down caret-icon mt-1 text-secondary" style="cursor: pointer;"></i>
+                            </div>
+                            <button class="btn btn-primary watch-button" id="watch-button-<?php echo $videoTitle; ?>">Watch</button>
+                        </div>
+                    </div>
+                <?php
+                    }
                 }
-            } else {
-                // Insert new user data into the database
-                $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, num_bland, sv_by, register_id) VALUES ('$id_number', 1, '$numQr', '$sv_by', '$id')";
+            ?>
 
-                if (mysqli_query($conn, $insertQuery)) {
-                    // Registration successful, you can redirect or display a success message
-                    echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
-                } else {
-                    // Handle the case where the insert query fails
-                    echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
-                }
-            }
-        }
-    } else {
-        echo "<script>alert('This card number is expired')</script>";
-    }
-}
+
+        </div>
+    </div>
+</div>

@@ -2,11 +2,24 @@ const logoutButton = document.getElementById("logoutButton");
 
 // Add a click event listener to the button
 logoutButton.addEventListener('click', function() {
-    const com = confirm('Are you sure you want to logout?');
-    if (com) {
-    // Redirect to the desired URL when the user confirms
-    window.location.href = '../index.php';
-    }
+    $('#profileModal').modal('hide');
+    swal({
+        text: "Are you sure you want to logout?",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    })
+    .then((willDelete) => {
+        if (willDelete) {
+                swal("Your logout successfully!", {
+                icon: "success",
+            }).then(() => {
+                window.location.href = '../index.php';
+            });
+        } else {
+            // swal("Your imaginary file is safe!");
+        }
+    });
 });
 
 

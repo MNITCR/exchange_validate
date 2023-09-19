@@ -14,105 +14,7 @@
 
 
     // =================Top up=====================
-    if (isset($_POST['top_up'])) {
-        $numQr = trim($_POST['numQr']);
-        $simNumber = $_COOKIE['simNumber'];
-        $id_number = $_POST['id_number'];
-        $id = $_POST['rg_id'];
-
-        if (empty($numQr)) {
-            echo "<script>alert('This input can\'t be null or empty !!!');</script>";
-        } elseif ($simNumber == $numQr) {
-            // Check if the num_bland value already exists in the database
-            $checkQuery = "SELECT * FROM main_bland_table WHERE num_bland = '$numQr'";
-            $checkResult = mysqli_query($conn, $checkQuery);
-
-            if (mysqli_num_rows($checkResult) > 0) {
-                // num_bland value already exists, show an error message
-                echo "<script>alert('This card number is already used. Please choose a different one.');</script>";
-            } else {
-                // Determine the sv_by value based on the length of num_bland
-                $sv_by = '';
-                $num_bland_length = strlen($numQr);
-
-                if ($num_bland_length == 15) {
-                    $sv_by = 'Smart';
-                } elseif ($num_bland_length == 14) {
-                    $sv_by = 'Metfone';
-                } elseif ($num_bland_length == 10) {
-                    $sv_by = 'Cellcard';
-                }
-
-                // Check if the phone number already exists in the database
-                $checkQuery = "SELECT * FROM main_bland_table WHERE id_number = '$id_number' AND register_id = '$id'";
-                $checkResult = mysqli_query($conn, $checkQuery);
-
-                if (mysqli_num_rows($checkResult) > 0) {
-                    // Phone number already exists, check topup_activity
-                    $row = mysqli_fetch_assoc($checkResult);
-                    $topupActivity = intval($row['topup_activity']);
-
-                    if ($topupActivity >= 10) {
-                        // User has exceeded topup limit for the day
-                        echo "<script>alert('You have reached the topup limit for the day.');</script>";
-                    } else {
-                        // Increment the main_bland value and topup_activity
-                        $updateQuery = "UPDATE main_bland_table SET main_bland = main_bland + 1, num_bland = '$numQr', topup_activity = topup_activity + 1, sv_by = '$sv_by', updated_at = now()  WHERE id_number = '$id_number' AND register_id = '$id'";
-
-                        if (mysqli_query($conn, $updateQuery)) {
-                            // Top-up successful, insert data into history_topup table
-                            $updateQueryTP = "INSERT INTO history_topup (card_number, service_by, transaction_date, register_id)
-                            VALUES ('$numQr', '$sv_by', NOW(), '$id')";
-
-                            if (mysqli_query($conn, $updateQueryTP)) {
-                                echo "<script>
-                                    swal({
-                                        text: 'Top up successful.',
-                                        icon: 'success',
-                                    }).then(function() {
-                                        window.location.href = 'dashboard.php';
-                                    });
-                                </script>";
-                                // echo "<script>alert('Top up successful.');window.location.href=('dashboard.php');</script>";
-                            } else {
-                                echo "Error recording top-up transaction: " . mysqli_error($conn);
-                            }
-                        } else {
-                            // Handle the case where the update query fails
-                            echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
-                        }
-                    }
-                } else {
-                    // Insert new user data into the database
-                    $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, topup_activity, num_bland, sv_by, register_id, created_at) VALUES ('$id_number', 1, 1, '$numQr', '$sv_by', '$id', now())";
-
-                    if (mysqli_query($conn, $insertQuery)) {
-                        // Top-up successful, insert data into history_topup table
-                        $insertQueryTP = "INSERT INTO history_topup (card_number, service_by, transaction_date, register_id)
-                        VALUES ('$numQr', '$sv_by', NOW(), '$id')";
-
-                        if (mysqli_query($conn, $insertQueryTP)) {
-                            echo "<script>
-                                swal({
-                                    text: 'Top up successful.',
-                                    icon: 'success',
-                                }).then(function() {
-                                    window.location.href = 'dashboard.php';
-                                });
-                            </script>";
-                        } else {
-                            echo "Error recording top-up transaction: " . mysqli_error($conn);
-                        }
-                    } else {
-                        // Handle the case where the insert query fails
-                        echo "<script>alert('Error Top up: " . mysqli_error($conn) . "');</script>";
-                    }
-                }
-            }
-        } else {
-            echo "<script>alert('This card number is expired')</script>";
-        }
-    }
+    include "../php/top_up.php";
 
 
     // Retrieve the phone number from the session
@@ -145,7 +47,7 @@
         if (mysqli_num_rows($result) == 1) {
             $userData = mysqli_fetch_assoc($result);
 
-            print_r($userData);
+            // print_r($userData);
             $id_mbt = $userData["id_mbt"];
             $id = $userData["id"];
             $_SESSION["user_id"] = $id;
@@ -156,6 +58,7 @@
             $ex_bland = $userData["exchange_bland"];
             $data_use = $userData["data_use"];
         } else {
+            $id_mbt = '';
             $id = '';
             $name = '';
             $phone = '';
@@ -170,163 +73,11 @@
 
 
     // =================Edit Profile=====================
-    if (isset($_POST["edit_submit"])) {
-        // Get updated user data from the form
-        $updatedName = mysqli_real_escape_string($conn, $_POST["name"]);
-        $updatedPhone = mysqli_real_escape_string($conn, $_POST["phone"]);
-
-        // Check if any changes were made
-        $query = "SELECT * FROM register WHERE phone_number = '$user_phone'";
-        $result = mysqli_query($conn, $query);
-
-        if ($result && mysqli_num_rows($result) == 1) {
-            $userData = mysqli_fetch_assoc($result);
-            $currentName = $userData["name"];
-            $currentPhone = $userData["phone_number"];
-
-            if ($updatedName === $currentName && $updatedPhone === $currentPhone) {
-                // No changes were made
-                echo "<script>
-                    swal('No changes were made. Please insert new data.');
-                </script>";
-            } else {
-                // Check if the phone number is updated
-                $isPhoneNumberUpdated = ($updatedPhone !== $user_phone);
-
-                // Check if the new phone number already exists in the database
-                $checkDuplicateQuery = "SELECT * FROM register WHERE phone_number = '$updatedPhone'";
-                $checkDuplicateResult = mysqli_query($conn, $checkDuplicateQuery);
-
-                if (mysqli_num_rows($checkDuplicateResult) > 0 && $isPhoneNumberUpdated) {
-                    // Phone number already in use
-                    echo "<script>
-                        swal('The phone number is already in use. Please choose a different one.');
-                    </script>";
-                } else {
-                    // Update user data in the database
-                    $updateQuery = "UPDATE register SET
-                                    name = '$updatedName',
-                                    phone_number = '$updatedPhone',
-                                    updated_at = NOW()
-                                    WHERE phone_number = '$user_phone'";
-
-                    if (mysqli_query($conn, $updateQuery)) {
-                        // Data updated successfully
-                        if ($isPhoneNumberUpdated) {
-                            // Phone number is updated, redirect to index.php
-                            echo "<script>
-                                swal({
-                                    title: 'Good job!',
-                                    text: 'Update successful. Please login again.',
-                                    icon: 'success',
-                                }).then(function() {
-                                    window.location.href = '../index.php';
-                                });
-                            </script>";
-                        } else {
-                            // Other data updated, redirect to dashboard.php
-                            echo "<script>
-                                swal({
-                                    title: 'Good job!',
-                                    text: 'Update successful',
-                                    icon: 'success',
-                                }).then(function() {
-                                    window.location.href = 'dashboard.php';
-                                });
-                            </script>";
-
-                        }
-                        mysqli_close($conn);
-                    } else {
-                        // Handle the case where the update fails
-                        echo "Error updating user data: " . mysqli_error($conn);
-                    }
-                }
-            }
-        } else {
-            // Handle the case where user data retrieval fails
-            echo "Error retrieving user data: " . mysqli_error($conn);
-        }
-    }
+    include "../php/edit_profile.php";
 
 
     // =================Exchange=====================
-    if (isset($_POST["Exchange"])) {
-        $transactions = $_POST['transactions'];
-        $selectedPlanText = $_POST['flexRadioDefault'];
-        $Exchange_Blade_hidden = $_POST['Exchange_Blade_hidden'];
-        $main_bland_second = intval($_POST['exchange-input-second']);
-        $ex_second = intval($_POST["Exchange_Blade_second"]);
-        $id_mbt = $_POST['id_mbt'];
-        $id_reg = $_POST['id_reg'];
-
-        // print($id_mbt . $id_reg);
-        print($Exchange_Blade_hidden);
-
-        if($transactions > 0){
-            // Check if the user has already exchanged before
-            $checkPreviousExchangeQuery = "SELECT exchange_bland FROM topup WHERE register_id = $id_reg";
-            $previousExchangeResult = mysqli_query($conn, $checkPreviousExchangeQuery);
-
-            if (mysqli_num_rows($previousExchangeResult) > 0) {
-                // User has exchanged before, retrieve the previous exchange value
-                $row = mysqli_fetch_assoc($previousExchangeResult);
-                $previousExchangeValue = intval($row['exchange_bland']);
-
-                // Calculate the new exchange value
-                $ex_second += $previousExchangeValue;
-
-                // Update the exchange_bland column
-                $updateExchangeQuery = "UPDATE topup SET exchange_bland = $ex_second WHERE register_id = $id_reg";
-                if (!mysqli_query($conn, $updateExchangeQuery)) {
-                    echo "<script>alert('Error updating exchange value: " . mysqli_error($conn) . "');</script>";
-                }
-            } else {
-                // User has not exchanged before, insert data into topup table
-                $insertQuery = "INSERT INTO topup (exchange_bland, created_at, register_id) VALUES ('$ex_second', now(), '$id_reg')";
-                if (!mysqli_query($conn, $insertQuery)) {
-                    echo "<script>alert('Error inserting data: " . mysqli_error($conn) . "');</script>";
-                }
-            }
-
-            // Calculate the new main_bland value after the exchange
-            $newMainBland = $main_bland_second - $transactions;
-            // print($newMainBland);
-
-            // Check if the new main_bland value is greater than or equal to 0
-            if ($newMainBland >= 0) {
-                // Update main blade value
-                $updateMainBladeQuery = "UPDATE main_bland_table SET main_bland = $newMainBland WHERE id_mb = $id_mbt"; // Assuming $id_mbt is the user's ID
-
-                if (mysqli_query($conn, $updateMainBladeQuery)) {
-                    // Insert data into history_exchange table
-                    $insertHistoryQuery = "INSERT INTO history_exchange (transactions, exchange_plan, exchange_data, date, user_id)
-                                          VALUES ('$transactions', '$selectedPlanText', '$Exchange_Blade_hidden', now(), '$id_reg')";
-
-                    if (mysqli_query($conn, $insertHistoryQuery)) {
-                        echo "<script>alert('Exchange successful.');window.location.href=('./dashboard.php');</script>";
-                    } else {
-                        echo "<script>alert('Error inserting into history_exchange: " . mysqli_error($conn) . "');</script>";
-                    }
-                    echo "<script>alert('Exchange successful.');window.location.href=('dashboard.php');</script>";
-
-                } else {
-                    echo "<script>alert('Error updating main blade: " . mysqli_error($conn) . "');</script>";
-                }
-
-                // echo "<script>alert('Exchange successful.');window.location.href=('dashboard.php');</script>";
-            } else {
-                echo "<script>alert('You do not have enough main blade for this exchange.');</script>";
-            }
-        }
-        else {
-            echo "<script>alert('You transactions must be  greater than 0 !!!');</script>";
-        }
-        // Close the database connection
-        mysqli_close($conn);
-    }
-
-
+    include "../php/exchange.php";
 
 ?>
 
@@ -336,8 +87,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <!-- <link rel="stylesheet" href="../css/dashboard.css"> -->
-    <!-- <link rel="stylesheet" href="../css/dashboard.css" type="text/css"> -->
     <link rel="stylesheet" href="../css/dashboard.css?<?php echo time(); ?>" type="text/css">
 
     <style>
@@ -570,7 +319,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone number</label>
-                                    <input type="text" name="phone" class="form-control" id="phone" value="<?php echo $phone; ?>">
+                                    <input type="text" name="phone" class="form-control" id="phone" value="<?php echo $phone; ?>" oninput="validatePhone(this)">
                                 </div>
                                 <div class="mb-3">
                                     <label for="id_number" class="form-label">Id number</label>
@@ -612,8 +361,8 @@
 
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="logoutButton">Login out</button>
-                        <button type="submit" class="btn btn-danger" name="edit_submit" id="editButton">Edit</button>
+                        <button type="button" class="btn btn-danger" id="logoutButton">Login out</button>
+                        <button type="submit" class="btn btn-primary" name="edit_submit" id="editButton">Edit</button>
                     </div>
                 </form>
             </div>
@@ -645,7 +394,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#HistoryModalTopup" data-bs-whatever="@mdo">History</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#HistoryModalTopup" data-bs-whatever="@mdo">History</button>
                         <button type="submit" name="top_up" class="btn btn-primary">Top Up</button>
                     </div>
                 </form>
@@ -705,7 +454,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#HistoryModalExchange" data-bs-whatever="@mdo">History</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#HistoryModalExchange" data-bs-whatever="@mdo">History</button>
                         <button type="submit" name="Exchange" class="btn btn-primary" id="Exchange">Exchange</button>
                     </div>
                 </form>
@@ -826,16 +575,16 @@
 
 
     <!-- =========================JS File============================ -->
-    <script src="../js/logout.js"></script>
-    <script src="../js/topup.js"></script>
-    <script src="../js/smart.js"></script>
-    <script src="../js/metfone.js"></script>
-    <script src="../js/cellcard.js"></script>
+    <script src="../js/logout.js?<?php echo time(); ?>" type="text/javascript"></script>
+    <script src="../js/topup.js?<?php echo time(); ?>" type="text/javascript"></script>
+    <script src="../js/smart.js?<?php echo time(); ?>" type="text/javascript"></script>
+    <script src="../js/metfone.js?<?php echo time(); ?>" type="text/javascript"></script>
+    <script src="../js/profile.js?<?php echo time(); ?>" type="text/javascript"></script>
+    <script src="../js/cellcard.js?<?php echo time(); ?>" type="text/javascript"></script>
     <script src="../js/exchange.js?<?php echo time(); ?>" type="text/javascript"></script>
+    <script src="../js/check_exchange_bland.js?<?php echo time(); ?>" type="text/javascript"></script>
 
-
-
-    <script>
+    <!-- <script>
         $(document).ready(function() {
             $("#video-link").click(function(event) {
                 event.preventDefault(); // Prevent the default behavior of the link
@@ -868,21 +617,7 @@
             });
         });
 
-    </script>
+    </script> -->
 
-
-    <script>
-        // Function to validate the "Name" input
-        function validateName(input) {
-            var validName = /^[A-Za-z\s]+$/.test(input.value); // Check if the input contains only letters and spaces
-
-            if (!validName) {
-                input.classList.add('input-danger'); // Add the "input-danger" class for red border
-            } else {
-                input.classList.remove('input-danger'); // Remove the "input-danger" class
-            }
-        }
-
-    </script>
 </body>
 </html>

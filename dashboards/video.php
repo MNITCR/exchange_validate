@@ -2,6 +2,7 @@
     // session_start();
     // $exBld = $_SESSION["exchange_bland"];
     // print($exBld);
+    include "../links/link.php";
     include "../php/deduct_exchange_bland.php";
     $user_id = $_SESSION["user_id"];
     $query = "SELECT * FROM topup WHERE register_id = $user_id";
@@ -9,7 +10,7 @@
     if ($result) {
         if (mysqli_num_rows($result) == 1) {
             $topupData = mysqli_fetch_assoc($result);
-            print_r($topupData);
+            // print_r($topupData);
             // echo($topupData["exchange_bland"]);
         }else{
 
@@ -24,16 +25,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php include "../links/link.php";?>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
+    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
     <title>Video</title>
     <style>
+        /* if title have tow line break show this */
+        #video-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Number of lines to show */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .card-text.show-full-text {
-        white-space: normal; /* Display the text as normal (not nowrap) */
-        overflow: visible; /* Allow the text to overflow the container */
-        text-overflow: initial; /* Remove ellipsis */
+            white-space: normal; /* Display the text as normal (not nowrap) */
+            overflow: visible; /* Allow the text to overflow the container */
+            text-overflow: initial; /* Remove ellipsis */
+        }
+
+        /* Style the scrollbar track */
+        ::-webkit-scrollbar {
+        width: 2px; /* Set the width of the scrollbar */
+        }
+
+        /* Style the scrollbar thumb (the draggable part) */
+        ::-webkit-scrollbar-thumb {
+        background: #888; /* Set the background color of the thumb */
+        border-radius: 5px; /* Add some rounded corners */
+        }
+
+        /* Style the scrollbar track when it's hovered */
+        ::-webkit-scrollbar-thumb:hover {
+        background: #555;
         }
     </style>
 </head>
@@ -52,13 +74,12 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="./video.php">Video</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link active">Exchange Bland Count: <input type="text" name="exchange-bland-count" id="exchange-bland-count" value="<?php echo $topupData["exchange_bland"]; ?>"></input></a>
+                <li class="nav-item d-none">
+                    <a class="nav-link">Exchange Bland Count: <input type="text" name="exchange-bland-count" id="exchange-bland-count" value="<?php echo $topupData["exchange_bland"]; ?>"></input></a>
                 </li>
             </ul>
             <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+                <input class="form-control me-2" type="search" id="vdSearch" placeholder="Search" aria-label="Search">
             </form>
             </div>
         </div>
@@ -66,11 +87,11 @@
 
     <!-- card video -->
     <div class="container-fluid bg-dark text-white">
-        <div class="container d-flex flex-column justify-content-center" style="padding-top: 7rem;">
+        <div class="container d-flex flex-column justify-content-center" style="padding: 130px 0 130px 0;">
             <div class="mb-5">
                 <h1 class="text-center">Album Video</h1>
             </div>
-            <div class="d-flex gap-3 flex-wrap justify-content-center mb-5">
+            <div class="d-flex gap-3 flex-wrap justify-content-center" id="video-container">
                 <?php
                     $videoFolder = "../video/"; // Replace with the path to your video folder
                     $videoFiles = scandir($videoFolder);
@@ -90,7 +111,9 @@
                                 <div class="text-white full-video" data-video-id="video-<?php echo $videoTitle; ?>" style="position: absolute; bottom: 0.5rem; right: 10px; cursor: pointer;display: none;"><i class="fa-solid fa-expand"></i></div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title"><?php echo $videoTitle; ?></h5>
+
+
+                                <h5 class="card-title" id="video-title"><?php echo $videoTitle; ?></h5>
                                 <div class="card-text-container d-flex">
                                     <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         <?php echo $videoTitle; ?>
@@ -105,740 +128,55 @@
                     }
                 ?>
             </div>
+
+            <!-- placeholders card -->
+            <div class="d-flex justify-content-center align-content-center">
+                <div class="card" aria-hidden="true" id="placeholder-card" style="display: none;width: 18.9rem;">
+                    <img src="https://oldweb.dyu.edu.tw/english/design/no-video.gif" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title placeholder-glow">
+                        <span class="placeholder col-6"></span>
+                        </h5>
+                        <p class="card-text placeholder-glow">
+                        <span class="placeholder col-7"></span>
+                        <span class="placeholder col-4"></span>
+                        <span class="placeholder col-4"></span>
+                        <span class="placeholder col-6"></span>
+                        <span class="placeholder col-8"></span>
+                        </p>
+                        <a class="btn btn-primary disabled placeholder col-6" aria-disabled="true"></a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- search video card -->
     <script>
-        $(document).ready(function() {
-            $(".caret-icon").click(function() {
-                var $textElement = $(this).prev(".card-text");
-                var $button = $(this).siblings(".watch-button");
+        $(document).ready(function () {
+            $("#vdSearch").on("input", function () {
+                var searchTerm = $(this).val().toLowerCase();
+                $("#video-container .card").each(function () {
+                    var videoTitle = $(this).find(".card-title").text().toLowerCase();
+                    if (videoTitle.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
 
-                if ($textElement.hasClass("expanded")) {
-                    $textElement.removeClass("expanded");
-                    $textElement.css("white-space", "nowrap");
-                    $textElement.css("overflow", "hidden");
-                    $textElement.css("text-overflow", "ellipsis");
-                    $button.text("Watch");
-                    $(this).removeClass("fa-caret-up").addClass("fa-caret-down");
+                // Show the placeholder card if no results found
+                var visibleCards = $("#video-container .card:visible").length;
+                if (visibleCards === 0) {
+                    $("#placeholder-card").show();
                 } else {
-                    $textElement.addClass("expanded");
-                    $textElement.css("white-space", "normal");
-                    $textElement.css("overflow", "visible");
-                    $textElement.css("text-overflow", "clip");
-                    $button.text("Hide");
-                    $(this).removeClass("fa-caret-down").addClass("fa-caret-up");
+                    $("#placeholder-card").hide();
                 }
             });
         });
     </script>
 
-    <!-- <script>
-        $(document).ready(function() {
-            // Enable the full-screen button
-            var fullScreenButtonDisabled = false;
-            // Click event handler for full-video element
-            $(".full-video").click(function () {
-                // Check if the full-screen button is disabled
-                if (fullScreenButtonDisabled) {
-                    return; // Do nothing if disabled
-                }
 
-                var videoId = $(this).data("video-id");
-                var videoElement = document.getElementById(videoId);
-
-                if (videoElement) {
-                    toggleFullScreen(videoElement);
-                }
-            });
-
-            // Function to toggle full-screen mode for a specific video element
-            function toggleFullScreen(videoElement) {
-                if (!document.fullscreenElement) {
-                    if (videoElement.requestFullscreen) {
-                        videoElement.requestFullscreen();
-                    } else if (videoElement.mozRequestFullScreen) {
-                        videoElement.mozRequestFullScreen();
-                    } else if (videoElement.webkitRequestFullscreen) {
-                        videoElement.webkitRequestFullscreen();
-                    }
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                }
-            }
-
-            // Object to store exchange balance for each video
-            var exchangeBlandMap = {};
-            var currentPlayingVideo = null;
-            var interval = null;
-
-            // button start and stop video
-            $(document).on('click', '.watch-button', function(event) {
-                var buttonId = event.currentTarget.id;
-                var videoId = buttonId.replace('watch-button-', ''); // Extract the video ID
-                var videoElement = document.getElementById('video-' + videoId);
-
-                event.preventDefault();
-
-                // Clear the interval for the previous video
-                clearInterval(interval);
-
-                if (!exchangeBlandMap.hasOwnProperty(videoId)) {
-                    // If no exchange balance exists for this video, initialize it
-                    exchangeBlandMap[videoId] = <?php echo $topupData["exchange_bland"]; ?>;
-                }
-
-                var exchangeBland = exchangeBlandMap[videoId];
-                var inputValueCount = $("#exchange-bland-count").val();
-                exchangeBland = inputValueCount;
-
-                // updateExchangeBland in php
-                function updateExchangeBland(){
-                    $.ajax({
-                        url: '../php/deduct_exchange_bland.php',
-                        method: 'POST',
-                        data: { exchangeBland: inputValueCount },
-                        cache: false,
-                        success: function(response) {
-                            response = response.trim();
-                            console.log('Response from server:', response);
-                            if (response === 'success') {
-                                if (inputValueCount <= 0) {
-                                    swal({
-                                        text: "You don't have enough data to continue.",
-                                        icon: "error",
-                                    });
-                                    stopAllVideos();
-                                }
-
-                                // Check if inputValueCount is 100
-                                else if (inputValueCount === 100) {
-                                    stopAllVideos();
-                                    swal({
-                                        text: "Your data is only 100MB left!",
-                                        icon: "warning",
-                                    }).then((willDelete) => {
-                                        if (willDelete) {
-                                            stopAllVideos();
-                                        }
-                                    });
-                                }
-                                else{
-                                    console.log(inputValueCount);
-                                }
-                            } else if (response === 'error') {
-                                alert('Failed to deduct exchange_bland. Database error occurred.');
-                            } else {
-                                alert('Unexpected response from server: ' + response);
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while deducting exchange_bland. Please try again later.');
-                        }
-                    });
-                }
-
-                // Function to check data status and prompt the user
-                function checkDataStatus(inputValueCount) {
-                    if (inputValueCount === 100) {
-                        clearInterval(interval);
-
-                        swal({
-                            text: "Your data is only 100MB left!",
-                            icon: "warning",
-                            buttons: true,
-                            dangerMode: true,
-                        }).then((willDelete) => {
-                            if (willDelete) {
-                                // User clicked "OK," continue playing the video
-                                interval = setInterval(function() {
-                                    inputValueCount -= 1;
-                                    $('#exchange-bland-count').val(inputValueCount);
-                                    checkDataStatus(inputValueCount);
-
-                                    if (inputValueCount <= 0) {
-                                        // Stop video and clear interval if inputValueCount goes below 0
-                                        clearInterval(interval);
-                                        videoElement.pause();
-                                        inputValueCount = 0;
-                                        $('#exchange-bland-count').val(inputValueCount);
-                                    }
-                                }, 1000);
-                            } else {
-                                // User clicked "Cancel," stop playing the video and clear interval
-                                videoElement.pause();
-                                inputValueCount = 0;
-                                $('#exchange-bland-count').val(inputValueCount);
-                                currentPlayingVideo = null;
-                                clearInterval(interval);
-                                $(this).text('Watch').removeClass('btn-danger');
-                            }
-                        });
-                    }
-                }
-
-                if (!currentPlayingVideo) {
-                    // If no video is currently playing, start this one
-                    currentPlayingVideo = videoElement;
-                    videoElement.play();
-                    $(this).text('Stop').addClass('btn-danger');
-
-                    if (inputValueCount > 0) {
-                        interval = setInterval(function() {
-                            inputValueCount -= 1;
-                            $('#exchange-bland-count').val(inputValueCount);
-                            // Update the exchange_bland value periodically
-                            updateExchangeBland();
-                            checkDataStatus(inputValueCount);
-
-                            // Enable the full-screen button
-                            fullScreenButtonDisabled = true;
-                        }, 1000);
-                    } else {
-                        swal({
-                            text: "You don't have enough data to continue.",
-                            icon: "error",
-                        });
-                        stopAllVideos();
-                    }
-                } else if (currentPlayingVideo === videoElement) {
-                    // If this video is currently playing, stop it
-                    videoElement.pause();
-                    currentPlayingVideo = null;
-                    $(this).text('Watch').removeClass('btn-danger');
-                    clearInterval(interval);
-
-                    // Enable the full-screen button
-                    fullScreenButtonDisabled = false;
-                } else {
-                    // If another video is currently playing, stop it and start this one
-                    currentPlayingVideo.pause();
-                    currentPlayingVideo = videoElement;
-                    videoElement.play();
-                    $('.watch-button').not(this).text('Watch').removeClass('btn-danger');
-                    $(this).text('Stop').addClass('btn-danger');
-
-                    // Start a new interval for the currently playing video
-                    if (inputValueCount > 0) {
-                        interval = setInterval(function() {
-                            inputValueCount -= 1;
-                            $('#exchange-bland-count').val(inputValueCount);
-                            // Update the exchange_bland value periodically
-                            updateExchangeBland();
-                            checkDataStatus(inputValueCount);
-
-                            // Enable the full-screen button
-                            fullScreenButtonDisabled = false;
-                        }, 1000);
-                    } else {
-                        swal({
-                            text: "You don't have enough data to continue.",
-                            icon: "error",
-                        });
-                        stopAllVideos();
-                    }
-                }
-            });
-
-            // Function to stop all videos
-            function stopAllVideos() {
-                $('.video').each(function() {
-                    this.pause();
-                });
-                currentPlayingVideo = null;
-                $('.watch-button').text('Watch').removeClass('btn-danger');
-                clearInterval(interval);
-
-                // Enable the full-screen button
-                fullScreenButtonDisabled = false;
-            }
-        });
-    </script> -->
-
-
-    <script>
-        $(document).ready(function() {
-
-            // Click event handler for full-video element
-            $(".full-video").click(function () {
-
-                var videoId = $(this).data("video-id");
-                var videoElement = document.getElementById(videoId);
-
-                if (videoElement) {
-                    toggleFullScreen(videoElement);
-                }
-            });
-
-            // Function to toggle full-screen mode for a specific video element
-            function toggleFullScreen(videoElement) {
-                if (!document.fullscreenElement) {
-                    if (videoElement.requestFullscreen) {
-                        videoElement.requestFullscreen();
-                    } else if (videoElement.mozRequestFullScreen) {
-                        videoElement.mozRequestFullScreen();
-                    } else if (videoElement.webkitRequestFullscreen) {
-                        videoElement.webkitRequestFullscreen();
-                    }
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                }
-            }
-
-            // Object to store exchange balance for each video
-            var exchangeBlandMap = {};
-            var currentPlayingVideo = null;
-            var interval = null;
-
-            // button start and stop video
-            $(document).on('click', '.watch-button', function(event) {
-                var buttonId = event.currentTarget.id;
-                var videoId = buttonId.replace('watch-button-', ''); // Extract the video ID
-                var videoElement = document.getElementById('video-' + videoId);
-
-                event.preventDefault();
-
-                // Clear the interval for the previous video
-                clearInterval(interval);
-
-                if (!exchangeBlandMap.hasOwnProperty(videoId)) {
-                    // If no exchange balance exists for this video, initialize it
-                    exchangeBlandMap[videoId] = <?php echo $topupData["exchange_bland"]; ?>;
-                }
-
-                var exchangeBland = exchangeBlandMap[videoId];
-                var inputValueCount = $("#exchange-bland-count").val();
-                exchangeBland = inputValueCount;
-
-
-                 // Hide the full-video elements for all videos
-                $('.full-video').hide();
-
-                // Show the full-video element for the clicked video
-                var fullVideoElement = $(this).closest('.card').find('.full-video');
-                fullVideoElement.show();
-
-
-                // updateExchangeBland in php
-                function updateExchangeBland(dataSubtract){
-                    $.ajax({
-                        url: '../php/deduct_exchange_bland.php',
-                        method: 'POST',
-                        data: { exchangeBland: inputValueCount, // Deducted exchange_bland value
-                            dataUse: dataSubtract  // Updated data_use value
-                        },
-                        cache: false,
-                        success: function(response) {
-                            response = response.trim();
-                            console.log('Response from server:', response);
-                            if (response === 'success') {
-                                if (inputValueCount <= 0) {
-                                    swal({
-                                        text: "You don't have enough data to continue.",
-                                        icon: "error",
-                                    });
-                                    stopAllVideos();
-
-                                    // Hide the .full-video elements when inputValueCount is less than or equal to 0
-                                    $('.full-video').hide();
-                                    dataUse = 0;
-                                }
-
-                                // Check if inputValueCount is 100
-                                else if (inputValueCount === 100) {
-                                    stopAllVideos();
-                                    swal({
-                                        text: "Your data is only 100MB left!",
-                                        icon: "warning",
-                                    }).then((willDelete) => {
-                                        if (willDelete) {
-                                            stopAllVideos();
-                                        }
-                                    });
-                                }
-                                else{
-                                    console.log(inputValueCount);
-                                }
-                            } else if (response === 'error') {
-                                alert('Failed to deduct exchange_bland. Database error occurred.');
-                            } else {
-                                alert('Unexpected response from server: ' + response);
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while deducting exchange_bland. Please try again later.');
-                        }
-                    });
-                }
-
-                // Function to check data status and prompt the user
-                function checkDataStatus(inputValueCount) {
-                    if (inputValueCount === 100) {
-                        clearInterval(interval);
-
-                        swal({
-                            text: "Your data is only 100MB left!",
-                            icon: "warning",
-                            buttons: true,
-                            dangerMode: true,
-                        }).then((willDelete) => {
-                            if (willDelete) {
-                                // User clicked "OK," continue playing the video
-                                interval = setInterval(function() {
-                                    inputValueCount -= 1;
-                                    $('#exchange-bland-count').val(inputValueCount);
-                                    checkDataStatus(inputValueCount);
-
-                                    if (inputValueCount <= 0) {
-                                        // Stop video and clear interval if inputValueCount goes below 0
-                                        clearInterval(interval);
-                                        videoElement.pause();
-                                        inputValueCount = 0;
-                                        $('#exchange-bland-count').val(inputValueCount);
-                                    }
-                                }, 1000);
-                            } else {
-                                // User clicked "Cancel," stop playing the video and clear interval
-                                videoElement.pause();
-                                inputValueCount = 0;
-                                $('#exchange-bland-count').val(inputValueCount);
-                                currentPlayingVideo = null;
-                                clearInterval(interval);
-                                $(this).text('Watch').removeClass('btn-danger');
-                            }
-                        });
-                    }
-                }
-
-                if (!currentPlayingVideo) {
-                    // If no video is currently playing, start this one
-                    currentPlayingVideo = videoElement;
-                    videoElement.play();
-                    $(this).text('Stop').addClass('btn-danger');
-
-                    if (inputValueCount > 0) {
-                        interval = setInterval(function() {
-                            inputValueCount -= 1;
-                            $('#exchange-bland-count').val(inputValueCount);
-
-                            // Store the subtracted value in a variable
-                            var dataSubtract = 1; // You can adjust this value if needed
-
-                            // Update the exchange_bland value periodically
-                            updateExchangeBland(dataSubtract);
-                            checkDataStatus(inputValueCount);
-
-                        }, 1000);
-                    } else {
-                        swal({
-                            text: "You don't have enough data to continue.",
-                            icon: "error",
-                        });
-                        stopAllVideos();
-
-                        // Hide the .full-video elements when inputValueCount is less than or equal to 0
-                        $('.full-video').hide();
-                    }
-                } else if (currentPlayingVideo === videoElement) {
-                    // If this video is currently playing, stop it
-                    videoElement.pause();
-                    currentPlayingVideo = null;
-                    $(this).text('Watch').removeClass('btn-danger');
-                    clearInterval(interval);
-
-                } else {
-                    // If another video is currently playing, stop it and start this one
-                    currentPlayingVideo.pause();
-                    currentPlayingVideo = videoElement;
-                    videoElement.play();
-                    $('.watch-button').not(this).text('Watch').removeClass('btn-danger');
-                    $(this).text('Stop').addClass('btn-danger');
-
-                    // Start a new interval for the currently playing video
-                    if (inputValueCount > 0) {
-                        interval = setInterval(function() {
-                            inputValueCount -= 1;
-                            $('#exchange-bland-count').val(inputValueCount);
-
-                            // Store the subtracted value in a variable
-                            var dataSubtract = 1; // You can adjust this value if needed
-                            
-                            // Update the exchange_bland value periodically
-                            updateExchangeBland(dataSubtract);
-                            checkDataStatus(inputValueCount);
-
-                        }, 1000);
-                    } else {
-                        swal({
-                            text: "You don't have enough data to continue.",
-                            icon: "error",
-                        });
-                        stopAllVideos();
-
-                        // Hide the .full-video elements when inputValueCount is less than or equal to 0
-                        $('.full-video').hide();
-                    }
-                }
-            });
-
-            // Function to stop all videos
-            function stopAllVideos() {
-                $('.video').each(function() {
-                    this.pause();
-                });
-                currentPlayingVideo = null;
-                $('.watch-button').text('Watch').removeClass('btn-danger');
-                clearInterval(interval);
-
-            }
-        });
-    </script>
-
-
-    <!-- <script>
-        $(document).ready(function() {
-
-            // Click event handler for full-video element
-            $(".full-video").click(function () {
-
-                var videoId = $(this).data("video-id");
-                var videoElement = document.getElementById(videoId);
-
-                if (videoElement) {
-                    toggleFullScreen(videoElement);
-                }
-            });
-
-            // Function to toggle full-screen mode for a specific video element
-            function toggleFullScreen(videoElement) {
-                if (!document.fullscreenElement) {
-                    if (videoElement.requestFullscreen) {
-                        videoElement.requestFullscreen();
-                    } else if (videoElement.mozRequestFullScreen) {
-                        videoElement.mozRequestFullScreen();
-                    } else if (videoElement.webkitRequestFullscreen) {
-                        videoElement.webkitRequestFullscreen();
-                    }
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                }
-            }
-
-            // Object to store exchange balance for each video
-            var exchangeBlandMap = {};
-            var currentPlayingVideo = null;
-            var interval = null;
-
-            // button start and stop video
-            $(document).on('click', '.watch-button', function(event) {
-                var buttonId = event.currentTarget.id;
-                var videoId = buttonId.replace('watch-button-', ''); // Extract the video ID
-                var videoElement = document.getElementById('video-' + videoId);
-
-                event.preventDefault();
-
-                // Clear the interval for the previous video
-                clearInterval(interval);
-
-                if (!exchangeBlandMap.hasOwnProperty(videoId)) {
-                    // If no exchange balance exists for this video, initialize it
-                    exchangeBlandMap[videoId] = <?php echo $topupData["exchange_bland"]; ?>;
-                }
-
-                var exchangeBland = exchangeBlandMap[videoId];
-                var inputValueCount = $("#exchange-bland-count").val();
-                exchangeBland = inputValueCount;
-
-
-                 // Hide the full-video elements for all videos
-                $('.full-video').hide();
-
-                // Show the full-video element for the clicked video
-                var fullVideoElement = $(this).closest('.card').find('.full-video');
-                fullVideoElement.show();
-
-
-                // updateExchangeBland in php
-                function updateExchangeBland(){
-                    $.ajax({
-                        url: '../php/deduct_exchange_bland.php',
-                        method: 'POST',
-                        data: { exchangeBland: inputValueCount },
-                        cache: false,
-                        success: function(response) {
-                            response = response.trim();
-                            console.log('Response from server:', response);
-                            if (response === 'success') {
-                                if (inputValueCount <= 0) {
-                                    swal({
-                                        text: "You don't have enough data to continue.",
-                                        icon: "error",
-                                    });
-                                    stopAllVideos();
-
-                                    // Hide the .full-video elements when inputValueCount is less than or equal to 0
-                                    $('.full-video').hide();
-                                }
-
-                                // Check if inputValueCount is 100
-                                else if (inputValueCount === 100) {
-                                    stopAllVideos();
-                                    swal({
-                                        text: "Your data is only 100MB left!",
-                                        icon: "warning",
-                                    }).then((willDelete) => {
-                                        if (willDelete) {
-                                            stopAllVideos();
-                                        }
-                                    });
-                                }
-                                else{
-                                    console.log(inputValueCount);
-                                }
-                            } else if (response === 'error') {
-                                alert('Failed to deduct exchange_bland. Database error occurred.');
-                            } else {
-                                alert('Unexpected response from server: ' + response);
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while deducting exchange_bland. Please try again later.');
-                        }
-                    });
-                }
-
-                // Function to check data status and prompt the user
-                function checkDataStatus(inputValueCount) {
-                    if (inputValueCount === 100) {
-                        clearInterval(interval);
-
-                        swal({
-                            text: "Your data is only 100MB left!",
-                            icon: "warning",
-                            buttons: true,
-                            dangerMode: true,
-                        }).then((willDelete) => {
-                            if (willDelete) {
-                                // User clicked "OK," continue playing the video
-                                interval = setInterval(function() {
-                                    inputValueCount -= 1;
-                                    $('#exchange-bland-count').val(inputValueCount);
-                                    checkDataStatus(inputValueCount);
-
-                                    if (inputValueCount <= 0) {
-                                        // Stop video and clear interval if inputValueCount goes below 0
-                                        clearInterval(interval);
-                                        videoElement.pause();
-                                        inputValueCount = 0;
-                                        $('#exchange-bland-count').val(inputValueCount);
-                                    }
-                                }, 1000);
-                            } else {
-                                // User clicked "Cancel," stop playing the video and clear interval
-                                videoElement.pause();
-                                inputValueCount = 0;
-                                $('#exchange-bland-count').val(inputValueCount);
-                                currentPlayingVideo = null;
-                                clearInterval(interval);
-                                $(this).text('Watch').removeClass('btn-danger');
-                            }
-                        });
-                    }
-                }
-
-                if (!currentPlayingVideo) {
-                    // If no video is currently playing, start this one
-                    currentPlayingVideo = videoElement;
-                    videoElement.play();
-                    $(this).text('Stop').addClass('btn-danger');
-
-                    if (inputValueCount > 0) {
-                        interval = setInterval(function() {
-                            inputValueCount -= 1;
-                            $('#exchange-bland-count').val(inputValueCount);
-                            // Update the exchange_bland value periodically
-                            updateExchangeBland();
-                            checkDataStatus(inputValueCount);
-
-                        }, 1000);
-                    } else {
-                        swal({
-                            text: "You don't have enough data to continue.",
-                            icon: "error",
-                        });
-                        stopAllVideos();
-
-                        // Hide the .full-video elements when inputValueCount is less than or equal to 0
-                        $('.full-video').hide();
-                    }
-                } else if (currentPlayingVideo === videoElement) {
-                    // If this video is currently playing, stop it
-                    videoElement.pause();
-                    currentPlayingVideo = null;
-                    $(this).text('Watch').removeClass('btn-danger');
-                    clearInterval(interval);
-
-                } else {
-                    // If another video is currently playing, stop it and start this one
-                    currentPlayingVideo.pause();
-                    currentPlayingVideo = videoElement;
-                    videoElement.play();
-                    $('.watch-button').not(this).text('Watch').removeClass('btn-danger');
-                    $(this).text('Stop').addClass('btn-danger');
-
-                    // Start a new interval for the currently playing video
-                    if (inputValueCount > 0) {
-                        interval = setInterval(function() {
-                            inputValueCount -= 1;
-                            $('#exchange-bland-count').val(inputValueCount);
-                            // Update the exchange_bland value periodically
-                            updateExchangeBland();
-                            checkDataStatus(inputValueCount);
-
-                        }, 1000);
-                    } else {
-                        swal({
-                            text: "You don't have enough data to continue.",
-                            icon: "error",
-                        });
-                        stopAllVideos();
-
-                        // Hide the .full-video elements when inputValueCount is less than or equal to 0
-                        $('.full-video').hide();
-                    }
-                }
-            });
-
-            // Function to stop all videos
-            function stopAllVideos() {
-                $('.video').each(function() {
-                    this.pause();
-                });
-                currentPlayingVideo = null;
-                $('.watch-button').text('Watch').removeClass('btn-danger');
-                clearInterval(interval);
-
-            }
-        });
-    </script> -->
-
+    <script src="../js/video.js?<?php echo time(); ?>" type="text/javascript"></script>
 </body>
 </html>
