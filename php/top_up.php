@@ -38,7 +38,7 @@
                     $row = mysqli_fetch_assoc($checkResult);
                     $topupActivity = intval($row['topup_activity']);
 
-                    if ($topupActivity >= 10) {
+                    if ($topupActivity >= 3) {
                         // User has exceeded topup limit for the day
                         echo "<script>alert('You have reached the topup limit for the day.');</script>";
                     } else {
@@ -70,7 +70,7 @@
                     }
                 } else {
                     // Insert new user data into the database
-                    $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, topup_activity, num_bland, sv_by, register_id, created_at) VALUES ('$id_number', 1, 1, '$numQr', '$sv_by', '$id', now())";
+                    $insertQuery = "INSERT INTO main_bland_table (id_number, main_bland, topup_activity, num_bland, sv_by, register_id, topup_date, created_at) VALUES ('$id_number', 1, 1, '$numQr', '$sv_by', '$id', now() ,now())";
 
                     if (mysqli_query($conn, $insertQuery)) {
                         // Top-up successful, insert data into history_topup table

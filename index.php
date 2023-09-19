@@ -2,23 +2,19 @@
     include "links/link.php";
     include "conn.php";
     session_start();
-    // Check if the form is submitted
+
     if (isset($_POST["submit"])) {
-        // Get user input
         $phoneNumber = $_POST["phonenumber"];
         $password = trim($_POST["password"]);
 
-        // Query the database for the user
         $query = "SELECT * FROM register WHERE phone_number = '$phoneNumber'";
         $result = mysqli_query($conn, $query);
 
         if ($result) {
-            // Check if a matching user is found
             if (mysqli_num_rows($result) == 1) {
                 $row = mysqli_fetch_assoc($result);
                 $hashedPassword = $row["password"];
 
-                // Check if "Remember Me" is selected
                 $rememberMe = isset($_POST["remember"]) ? true : false;
 
                 if ($rememberMe) {
@@ -32,31 +28,39 @@
                 if ($password === $hashedPassword) {
                     $_SESSION["user_phonenumber"] = $phoneNumber;
 
-                    // Check if the date is correct
-                    $currentDate = date("Y-m-d");
-                    $lastLoginDate = $row["last_login_date"]; // Assuming you have a column for last login date in your database
+                    // Calculate the date 7 days ago
+                    $sevenDaysAgo = date("Y-m-d", strtotime("-7 days"));
 
-                    if ($lastLoginDate != $currentDate) {
-                        // Date is incorrect, reset topup_activity
-                        $resetTopupQuery = "UPDATE main_bland_table SET topup_activity = 0 WHERE register_id = '{$row['id']}'";
-                        mysqli_query($conn, $resetTopupQuery);
-                        // print($lastLoginDate);
+                    // print($sevenDaysAgo);
+                    // Check for top-ups exactly 7 days ago in main_bland_table
+                    $checkTopupQueryMbt = "SELECT * FROM main_bland_table WHERE register_id = '{$row['id']}' AND topup_date = '$sevenDaysAgo'";
+                    $topupResultMbt = mysqli_query($conn, $checkTopupQueryMbt);
+
+                    if (mysqli_num_rows($topupResultMbt) > 0) {
+                        // Update main_bland in main_bland_table to 0
+                        $updateMainBlandQueryMbt = "UPDATE main_bland_table SET main_bland = 0 WHERE register_id = '{$row['id']}' AND topup_date = '$sevenDaysAgo'";
+                        mysqli_query($conn, $updateMainBlandQueryMbt);
+
+                        // Update exchange_bland and data_use in topup table to 0
+                        $updateTopupQuery = "UPDATE topup SET exchange_bland = 0, data_use = 0 WHERE register_id = '{$row['id']}'";
+                        mysqli_query($conn, $updateTopupQuery);
                     }
 
-                    // Update the last login date
+                    $currentDate = date("Y-m-d");
+                    $lastLoginDate = $row["last_login_date"];
+
+                    if ($lastLoginDate != $currentDate) {
+                        // Update main_bland in main_bland_table
+                        $updateMainBlandQuery = "UPDATE main_bland_table SET main_bland = 0 WHERE register_id = '{$row['id']}'";
+                        mysqli_query($conn, $updateMainBlandQuery);
+                    }
+
                     $updateLastLoginQuery = "UPDATE register SET last_login_date = '$currentDate' WHERE id = '{$row['id']}'";
                     mysqli_query($conn, $updateLastLoginQuery);
-                    // print("Success");
 
-                    echo "<script>
-                        swal({
-                            title: 'Welcome!',
-                            text: 'Login successful.',
-                            icon: 'success',
-                        }).then(function() {
-                            window.location.href = 'dashboards/dashboard.php';
-                        });
-                    </script>";
+                    // Redirect to the dashboard upon successful login
+                    header("Location: dashboards/dashboard.php");
+                    exit;
                 } else {
                     echo "<script>
                         swal({
@@ -81,11 +85,12 @@
             // Query execution error
             echo "Error: " . mysqli_error($conn);
         }
+
+        // Close the database connection
+        mysqli_close($conn);
     }
-
-
-
 ?>
+
 
 
 <?php include "links/link.php";?>
@@ -120,8 +125,13 @@
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" id="password" required autofocus
-                    value="<?php echo isset($_COOKIE['remember_password']) ? $_COOKIE['remember_password'] : ''; ?>">
+                    <div class="input-group">
+                        <input type="password" name="password" class="form-control" id="password" required autofocus
+                        value="<?php echo isset($_COOKIE['remember_password']) ? $_COOKIE['remember_password'] : ''; ?>">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="border-radius: 0px 5px 5px 0px">
+                            <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-3 form-check">
                     <input type="checkbox" name="remember" class="form-check-input" id="remember"
@@ -138,3 +148,5 @@
         </div>
     </div>
 </div>
+
+<script src="js/login.js?<?php echo time(); ?>" type="text/javascript"></script>

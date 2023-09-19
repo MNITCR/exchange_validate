@@ -20,6 +20,7 @@ CREATE TABLE main_bland_table (
     num_bland float(50),
     sv_by VARCHAR(50) NOT NULL,
     register_id INT,
+    topup_date DATE NULL DEFAULT NULL,
     created_at TIMESTAMP NULL DEFAULT NULL,
     updated_at TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (register_id) REFERENCES register(id)

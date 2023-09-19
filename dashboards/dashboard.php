@@ -481,13 +481,17 @@
                                 <th scope="col">Exchange Plan</th>
                                 <th scope="col">Exchange Data</th>
                                 <th scope="col">Date</th>
+                                <th scope="col">Time</th>
                                 <th scope="col">Transaction</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                                // SQL query to retrieve data from the exchange_validate table
+                                // Set the time zone to (UTC+07:00) Bangkok, Hanoi, Jakarta
+                                date_default_timezone_set('Asia/Bangkok');
+
+                                // SQL query to retrieve data from the history_exchange table
                                 $query = "SELECT * FROM history_exchange WHERE user_id = '$id'";
 
                                 // Execute the query
@@ -498,17 +502,62 @@
                                     // Loop through the rows and display the data
                                     while ($exHsEx = mysqli_fetch_assoc($result)) {
                                         echo '<tr>';
-                                        echo '<td>'.'<span class="fw-bold">'. $exHsEx['transactions'] . '</span>'. ' $' .'</td>';
-                                        echo '<td>'.'<span class="fw-bold">'. $exHsEx['exchange_plan'] . '</span>'. ' G' .'</td>';
-                                        echo '<td>'.'<span class="fw-bold">'. $exHsEx['exchange_data'] . '</span>'. ' MB' .'</td>';
-                                        echo '<td style="white-space: nowrap;">'.'<span class="fw-bold">'. $exHsEx['date'] . '</span></td>';
+                                        echo '<td>' . '<span class="fw-bold">' . $exHsEx['transactions'] . '</span>' . ' $' . '</td>';
+                                        echo '<td>' . '<span class="fw-bold">' . $exHsEx['exchange_plan'] . '</span>' . ' G' . '</td>';
+                                        echo '<td>' . '<span class="fw-bold">' . $exHsEx['exchange_data'] . '</span>' . ' MB' . '</td>';
+                                        echo '<td style="white-space: nowrap;">' . '<span class="fw-bold">' . $exHsEx['date'] . '</span></td>';
+
+                                        // Calculate and display the time difference
+                                        echo '<td class="text-success">' . getRelativeTimeHSE($exHsEx['date']) . '</td>';
                                         echo '<td class="text-success">Success</td>';
                                         echo '<td><i class="fa-solid fa-right-left text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Exchange" style="cursor: pointer;"></i></td>';
                                         echo '</tr>';
                                     }
                                 } else {
-                                    // No data found in the exchange_validate table
+                                    // No data found in the history_exchange table
                                     echo '<tr><td colspan="6">No data found.</td></tr>';
+                                }
+
+                                // // Function to calculate relative time
+                                // function getRelativeTime($date) {
+                                //     $now = time();
+                                //     $date = strtotime($date);
+                                //     $diff = $now - $date;
+
+                                //     if ($diff < 60) {
+                                //         return 'Now';
+                                //     } elseif ($diff < 3600) {
+                                //         return floor($diff / 60) . ' minute ago';
+                                //     } elseif ($diff < 86400) {
+                                //         return floor($diff / 3600) . ' hours ago';
+                                //     } elseif ($diff < 2592000) {
+                                //         return floor($diff / 86400) . ' days ago';
+                                //     } elseif ($diff < 31536000) {
+                                //         return floor($diff / 2592000) . ' months ago';
+                                //     } else {
+                                //         return floor($diff / 31536000) . ' years ago';
+                                //     }
+                                // }
+
+                                // Function to calculate relative time
+                                function getRelativeTimeHSE($date) {
+                                    $now = time();
+                                    $date = strtotime($date);
+                                    $diff = $now - $date;
+
+                                    if ($diff < 60) {
+                                        return 'Now';
+                                    } elseif ($diff < 3600) {
+                                        return floor($diff / 60) . ' minute' . ($diff < 120 ? '' : 's') . ' ago';
+                                    } elseif ($diff < 86400) {
+                                        return floor($diff / 3600) . ' hour' . ($diff < 7200 ? '' : 's') . ' ago';
+                                    } elseif ($diff < 2592000) {
+                                        return floor($diff / 86400) . ' day' . ($diff < 172800 ? '' : 's') . ' ago';
+                                    } elseif ($diff < 31536000) {
+                                        return floor($diff / 2592000) . ' month' . ($diff < 5184000 ? '' : 's') . ' ago';
+                                    } else {
+                                        return floor($diff / 31536000) . ' year' . ($diff < 63072000 ? '' : 's') . ' ago';
+                                    }
                                 }
                             ?>
                         </tbody>
@@ -536,12 +585,16 @@
                                 <th scope="col">Card number</th>
                                 <th scope="col">Service by</th>
                                 <th scope="col">Date</th>
+                                <th scope="col">Time</th>
                                 <th scope="col">Transaction</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
+                                // Set the time zone to (UTC+07:00) Bangkok, Hanoi, Jakarta
+                                date_default_timezone_set('Asia/Bangkok');
+
                                 // SQL query to retrieve data from the exchange_validate table
                                 $query = "SELECT * FROM history_topup WHERE register_id = '$id'";
 
@@ -556,6 +609,9 @@
                                         echo '<td>'.'<span class="fw-bold">'. $topupHsEx['card_number'] . '</span>'.'</td>';
                                         echo '<td>'.'<span class="fw-bold">'. $topupHsEx['service_by'] . '</span>'.'</td>';
                                         echo '<td style="white-space: nowrap;">'.'<span class="fw-bold">'. $topupHsEx['transaction_date'] . '</span></td>';
+
+                                        // Calculate and display the time difference
+                                        echo '<td class="text-success">' . getRelativeTimeTP($topupHsEx['transaction_date']) . '</td>';
                                         echo '<td class="text-success">Success</td>';
                                         echo '<td><i class="fa-solid fa-arrow-down text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Topup" style="cursor: pointer;"></i></td>';
                                         echo '</tr>';
@@ -564,7 +620,29 @@
                                     // No data found in the exchange_validate table
                                     echo '<tr><td colspan="5">No data found.</td></tr>';
                                 }
+
+                                // Function to calculate relative time
+                                function getRelativeTimeTP($date) {
+                                    $now = time();
+                                    $date = strtotime($date);
+                                    $diff = $now - $date;
+
+                                    if ($diff < 60) {
+                                        return 'Now';
+                                    } elseif ($diff < 3600) {
+                                        return floor($diff / 60) . ' minute' . ($diff < 120 ? '' : 's') . ' ago';
+                                    } elseif ($diff < 86400) {
+                                        return floor($diff / 3600) . ' hour' . ($diff < 7200 ? '' : 's') . ' ago';
+                                    } elseif ($diff < 2592000) {
+                                        return floor($diff / 86400) . ' day' . ($diff < 172800 ? '' : 's') . ' ago';
+                                    } elseif ($diff < 31536000) {
+                                        return floor($diff / 2592000) . ' month' . ($diff < 5184000 ? '' : 's') . ' ago';
+                                    } else {
+                                        return floor($diff / 31536000) . ' year' . ($diff < 63072000 ? '' : 's') . ' ago';
+                                    }
+                                }
                             ?>
+
                         </tbody>
                     </table>
                 </div>
@@ -583,41 +661,6 @@
     <script src="../js/cellcard.js?<?php echo time(); ?>" type="text/javascript"></script>
     <script src="../js/exchange.js?<?php echo time(); ?>" type="text/javascript"></script>
     <script src="../js/check_exchange_bland.js?<?php echo time(); ?>" type="text/javascript"></script>
-
-    <!-- <script>
-        $(document).ready(function() {
-            $("#video-link").click(function(event) {
-                event.preventDefault(); // Prevent the default behavior of the link
-
-                // Make an AJAX request to check the exchange_bland column
-                $.ajax({
-                    url: "../php/check_exchange_bland.php", // Replace with the actual URL to your PHP script
-                    method: "GET",
-                    dataType: "json",
-                    success: function(data) {
-                        if (data.exchange_bland > 0) {
-                            // User has enough exchange_bland, proceed to the video page
-                            window.location.href = "./video.php";
-                        } else {
-                            // User does not have enough exchange_bland, display an alert
-                            swal({
-                                text: 'You do not have enough exchange bland for this action!!!',
-                                icon: 'error',
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        // Access the error information from the xhr object
-                        alert("Error: " + xhr.responseText);
-
-                        // alert("Status: " + status);
-                        // alert("Error: " + error);
-                    }
-                });
-            });
-        });
-
-    </script> -->
 
 </body>
 </html>
