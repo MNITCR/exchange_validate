@@ -177,7 +177,7 @@ $(document).ready(function() {
                                 inputValueCount = 0;
                                 $('#exchange-bland-count').val(inputValueCount);
                             }
-                        }, 1000);
+                        }, 3000);
                     } else {
                         // User clicked "Cancel," stop playing the video and clear interval
                         videoElement.pause();
@@ -215,7 +215,7 @@ $(document).ready(function() {
                     updateExchangeBland(dataSubtract);
                     checkDataStatus(inputValueCount);
 
-                }, 1000);
+                }, 3000);
             } else {
                 swal({
                     text: "You don't have enough data to continue.",
@@ -261,7 +261,7 @@ $(document).ready(function() {
                     updateExchangeBland(dataSubtract);
                     checkDataStatus(inputValueCount);
 
-                }, 1000);
+                }, 3000);
             } else {
                 swal({
                     text: "You don't have enough data to continue.",

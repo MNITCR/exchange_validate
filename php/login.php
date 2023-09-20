@@ -47,7 +47,7 @@
 
                     if ($lastLoginDate != $currentDate) {
                         // Update main_bland in main_bland_table
-                        $updateMainBlandQuery = "UPDATE main_bland_table SET main_bland = 0 WHERE register_id = '{$row['id']}'";
+                        $updateMainBlandQuery = "UPDATE main_bland_table SET topup_activity = 0 WHERE register_id = '{$row['id']}'";
                         mysqli_query($conn, $updateMainBlandQuery);
                     }
 
