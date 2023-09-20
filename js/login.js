@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    var loginAttempts = 0; // Initialize login attempts counter
+
     // Add an event listener to the input element Phonenumber
     var phonNumberInput = document.getElementById('phonenumber');
     phonNumberInput.addEventListener('input', function() {
@@ -92,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Validation failed. Please check your inputs.');
             e.preventDefault();
         } else {
+
             // alert('Validation successful. Form will be submitted.');
         }
     });
