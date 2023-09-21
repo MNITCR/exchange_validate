@@ -34,7 +34,7 @@
 
                     // Check if the date is correct
                     $currentDate = date("Y-m-d");
-                    $lastLoginDate = $row["last_login_date"]; // Assuming you have a column for last login date in your database
+                    $lastLoginDate = $row["last_login_date"];
 
                     if ($lastLoginDate != $currentDate) {
                         // Date is incorrect, reset topup_activity

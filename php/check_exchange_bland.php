@@ -1,8 +1,8 @@
 <?php
     include_once '../conn.php';
     session_start();
-    // Check exchange_bland for the user (replace with your actual query)
-    $user_id = $_SESSION["user_id"]; // Assuming you have a user session
+    // Check exchange_bland
+    $user_id = $_SESSION["user_id"];
     // print($user_id);
     $query = "SELECT exchange_bland FROM topup WHERE register_id = $user_id";
     $result = mysqli_query($conn, $query);
