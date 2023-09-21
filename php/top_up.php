@@ -37,11 +37,17 @@
                     // Phone number already exists, check topup_activity
                     $row = mysqli_fetch_assoc($checkResult);
                     $topupActivity = intval($row['topup_activity']);
+                    $main_bland_AT = intval($row['main_bland']);
 
-                    if ($topupActivity >= 3) {
+                    if ($main_bland_AT >= 3) {
+                        // check if main bland have larger 3 $
+                        echo "<script>alert('You have reached the topup limit. Cannot top up at this time.');</script>";
+
+                    }else if($topupActivity >= 3) {
                         // User has exceeded topup limit for the day
                         echo "<script>alert('You have reached the topup limit for the day.');</script>";
-                    } else {
+
+                    }else {
                         // Increment the main_bland value and topup_activity
                         $updateQuery = "UPDATE main_bland_table SET main_bland = main_bland + 1, num_bland = '$numQr', topup_activity = topup_activity + 1, sv_by = '$sv_by', updated_at = now()  WHERE id_number = '$id_number' AND register_id = '$id'";
 

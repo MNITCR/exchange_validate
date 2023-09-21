@@ -662,5 +662,6 @@
     <script src="../js/exchange.js?<?php echo time(); ?>" type="text/javascript"></script>
     <script src="../js/check_exchange_bland.js?<?php echo time(); ?>" type="text/javascript"></script>
 
+    
 </body>
 </html>
